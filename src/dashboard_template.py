@@ -30,9 +30,13 @@ TEMPLATE = r"""<!DOCTYPE html>
 <style>
 * { box-sizing: border-box; margin: 0; padding: 0; }
 body {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
-  background: #0a0a0a;
-  color: #e0e0e0;
+  font-family: ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI Variable Display", "Segoe UI", Helvetica, Arial, sans-serif;
+  font-size: 14px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background: #2e2f31;
+  color: rgba(255,255,255,0.9);
   height: 100vh;
   display: flex;
   flex-direction: column;
@@ -41,88 +45,135 @@ body {
 
 /* Header */
 .header {
-  padding: 10px 20px;
+  padding: 12px 20px;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  border-bottom: 1px solid #222;
+  border-bottom: 1px solid rgba(255,255,255,0.08);
   flex-shrink: 0;
+  background: #242426;
 }
-.header h1 { font-size: 1.2rem; font-weight: 600; }
+.header h1 { font-size: 18px; font-weight: 600; }
 .header h1 span { color: #4ade80; }
 
 /* Stats bar */
 .stats-bar {
   display: flex;
-  gap: 20px;
-  padding: 6px 20px;
-  background: #111;
-  border-bottom: 1px solid #222;
+  gap: 24px;
+  padding: 10px 20px;
+  background: #242426;
+  border-bottom: 1px solid rgba(255,255,255,0.08);
   flex-shrink: 0;
   flex-wrap: wrap;
 }
-.stat { text-align: center; min-width: 48px; }
-.stat .value { font-size: 1.1rem; font-weight: 700; color: #fff; }
-.stat .label { font-size: 0.62rem; color: #555; text-transform: uppercase; letter-spacing: 0.05em; }
+.stat { text-align: center; min-width: 52px; }
+.stat .value { font-size: 18px; font-weight: 700; color: rgba(255,255,255,0.9); }
+.stat .label { font-size: 10px; font-weight: 600; color: rgba(255,255,255,0.3); text-transform: uppercase; letter-spacing: 0.04em; margin-top: 1px; }
 
 /* Filter bar */
 .filter-bar {
   display: flex;
-  gap: 10px;
+  gap: 12px;
   align-items: center;
-  padding: 6px 20px;
-  background: #0d0d0d;
-  border-bottom: 1px solid #222;
+  padding: 8px 20px;
+  background: #2e2f31;
+  border-bottom: 1px solid rgba(255,255,255,0.08);
   flex-wrap: wrap;
   flex-shrink: 0;
 }
-.filter-group { display: flex; align-items: center; gap: 5px; }
-.filter-group label { font-size: 0.7rem; color: #555; white-space: nowrap; }
+.filter-group { display: flex; align-items: center; gap: 6px; }
+.filter-group label { font-size: 12px; font-weight: 500; color: rgba(255,255,255,0.4); white-space: nowrap; }
 .toggle-btn {
-  padding: 3px 10px;
-  border-radius: 4px;
-  font-size: 0.73rem;
+  padding: 4px 12px;
+  height: 30px;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 500;
   cursor: pointer;
-  background: #1a1a1a;
-  border: 1px solid #333;
-  color: #e0e0e0;
-  transition: background 0.15s;
+  background: rgba(255,255,255,0.08);
+  border: 1px solid rgba(255,255,255,0.12);
+  color: rgba(255,255,255,0.7);
+  transition: background 100ms ease-out;
+  box-shadow: rgba(15,15,15,0.1) 0px 0px 0px 1px inset, rgba(15,15,15,0.1) 0px 1px 2px;
 }
 .toggle-btn.active { background: #4ade80; color: #000; border-color: #4ade80; font-weight: 600; }
-.toggle-btn:hover:not(.active) { background: #222; }
+.toggle-btn:hover:not(.active) { background: rgba(255,255,255,0.12); }
 .search-inline {
-  background: #1a1a1a;
-  border: 1px solid #333;
-  border-radius: 6px;
-  padding: 4px 10px;
-  color: #e0e0e0;
-  font-size: 0.78rem;
-  width: 200px;
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 17px;
+  padding: 5px 14px;
+  color: rgba(255,255,255,0.9);
+  font-size: 14px;
+  width: 220px;
   outline: none;
 }
-.search-inline:focus { border-color: #4ade80; }
+.search-inline:focus { border-color: rgb(58,151,212); box-shadow: rgb(58 151 212 / 36%) 0px 0px 0px 3px; }
+.search-inline::placeholder { color: rgba(255,255,255,0.3); }
+.funding-slider {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100px;
+  height: 4px;
+  background: rgba(255,255,255,0.15);
+  border-radius: 2px;
+  outline: none;
+  cursor: pointer;
+}
+.funding-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: #4ade80;
+  cursor: pointer;
+  border: 2px solid #242426;
+}
+.funding-slider::-moz-range-thumb {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: #4ade80;
+  cursor: pointer;
+  border: 2px solid #242426;
+}
 
 /* Tab bar */
 .tab-bar {
   display: flex;
   gap: 0;
   padding: 0 20px;
-  background: #0d0d0d;
-  border-bottom: 1px solid #222;
+  background: #242426;
+  border-bottom: 1px solid rgba(255,255,255,0.08);
   flex-shrink: 0;
+  position: relative;
 }
+.tab-bar .zoom-label {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 15px;
+  font-weight: 600;
+  color: rgba(255,255,255,0.9);
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 250ms;
+}
+.tab-bar .zoom-label.visible { opacity: 1; }
 .tab {
-  padding: 8px 18px;
-  font-size: 0.8rem;
+  padding: 10px 20px;
+  font-size: 14px;
+  font-weight: 500;
   cursor: pointer;
   border-bottom: 2px solid transparent;
-  color: #666;
-  transition: color 0.15s, border-color 0.15s;
+  color: rgba(255,255,255,0.4);
+  transition: color 150ms, border-color 150ms;
   white-space: nowrap;
   user-select: none;
 }
-.tab:hover { color: #aaa; }
-.tab.active { color: #4ade80; border-bottom-color: #4ade80; }
+.tab:hover { color: rgba(255,255,255,0.7); }
+.tab.active { color: #4ade80; border-bottom-color: #4ade80; font-weight: 600; }
 .tab.hidden { display: none; }
 
 /* Main layout */
@@ -135,81 +186,87 @@ body {
 /* Circle packing view */
 #view-pack {
   position: relative;
-  background: #0a0a0a;
+  background: #2e2f31;
   flex-direction: row;
+  display: flex;
+  gap: 0;
 }
+#view-pack.hidden { display: none !important; }
 #pack-svg { width: 100%; height: 100%; display: block; }
 .pack-size-toggle {
   display: flex;
   gap: 0;
-  background: #111;
-  border: 1px solid #333;
-  border-radius: 5px;
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 6px;
   overflow: hidden;
 }
 .pack-size-toggle button {
-  padding: 4px 12px;
-  font-size: 0.72rem;
+  padding: 5px 12px;
+  font-size: 12px;
+  font-weight: 500;
   cursor: pointer;
   background: transparent;
   border: none;
-  color: #888;
-  transition: background 0.15s, color 0.15s;
+  color: rgba(255,255,255,0.4);
+  transition: background 100ms ease-out, color 150ms;
 }
-.pack-size-toggle button.active { background: #1e3a1e; color: #4ade80; font-weight: 600; }
-.pack-size-toggle button:hover:not(.active) { background: #1a1a1a; color: #ccc; }
+.pack-size-toggle button.active { background: rgba(74,222,128,0.15); color: #4ade80; font-weight: 600; }
+.pack-size-toggle button:hover:not(.active) { background: rgba(255,255,255,0.08); color: rgba(255,255,255,0.7); }
 .sector-checks {
   display: flex;
   flex-direction: column;
-  gap: 2px;
-  padding: 6px 0;
+  gap: 1px;
+  padding: 8px 0;
 }
 .sector-check {
   display: flex;
   align-items: center;
   gap: 6px;
-  font-size: 0.72rem;
+  font-size: 13px;
+  font-weight: 500;
   cursor: pointer;
   user-select: none;
-  padding: 2px 4px;
-  border-radius: 4px;
+  padding: 3px 6px;
+  border-radius: 5px;
 }
-.sector-check:hover { background: #1a1a1a; }
+.sector-check:hover { background: rgba(255,255,255,0.06); }
 .sector-check input[type=checkbox] { accent-color: var(--sector-color, #4ade80); width: 14px; height: 14px; cursor: pointer; }
 .sector-check .swatch { width: 10px; height: 10px; border-radius: 2px; flex-shrink: 0; }
 .sector-check.excluded { opacity: 0.35; }
 .sector-check .check-label { flex: 1; }
-.sector-check .check-count { color: #666; font-size: 0.65rem; }
+.sector-check .check-count { color: rgba(255,255,255,0.3); font-size: 12px; font-weight: 500; }
 .pack-methodology {
   position: absolute;
-  bottom: 8px;
+  bottom: 10px;
   left: 182px;
-  font-size: 0.65rem;
-  color: #444;
+  font-size: 11px;
+  color: rgba(255,255,255,0.2);
   pointer-events: none;
 }
 
 /* Sectors view */
 #view-sectors {
   overflow-y: auto;
-  padding: 12px;
+  padding: 16px;
 }
 .sectors-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-  gap: 8px;
+  grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+  gap: 12px;
 }
 .sector-card {
-  background: #111;
-  border: 1px solid #222;
+  background: #242426;
+  border: 1px solid rgba(255,255,255,0.08);
   border-radius: 8px;
-  padding: 14px 14px 14px 18px;
+  padding: 16px 16px 16px 20px;
   cursor: pointer;
-  transition: border-color 0.2s, transform 0.1s;
+  transition: border-color 200ms, transform 100ms, box-shadow 200ms;
   position: relative;
   overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.15);
 }
-.sector-card:hover { border-color: #3a3a3a; transform: translateY(-1px); }
+.sector-card:hover { border-color: rgba(255,255,255,0.18); transform: translateY(-1px); box-shadow: 0 4px 16px rgba(0,0,0,0.25); }
 .sector-card .sector-bar {
   position: absolute;
   top: 0;
@@ -222,107 +279,113 @@ body {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-  margin-bottom: 5px;
+  margin-bottom: 6px;
 }
-.sector-card .sector-name { font-size: 0.95rem; font-weight: 600; }
-.sector-card .sector-funding { font-size: 1rem; font-weight: 700; color: #4ade80; }
-.sector-card .sector-count { font-size: 0.68rem; color: #666; margin-top: 1px; text-align: right; }
-.sector-card .sector-desc { font-size: 0.7rem; color: #555; margin-bottom: 8px; line-height: 1.45; }
-.top-companies { display: flex; flex-wrap: wrap; gap: 4px; }
+.sector-card .sector-name { font-size: 16px; font-weight: 600; }
+.sector-card .sector-funding { font-size: 16px; font-weight: 700; color: #4ade80; }
+.sector-card .sector-count { font-size: 12px; font-weight: 500; color: rgba(255,255,255,0.4); margin-top: 2px; text-align: right; }
+.sector-card .sector-desc { font-size: 13px; color: rgba(255,255,255,0.45); margin-bottom: 10px; line-height: 1.5; }
+.top-companies { display: flex; flex-wrap: wrap; gap: 5px; }
 .company-chip {
-  background: #181818;
-  border: 1px solid #2a2a2a;
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.08);
   border-radius: 4px;
-  padding: 2px 7px;
-  font-size: 0.68rem;
+  padding: 3px 8px;
+  font-size: 12px;
   white-space: nowrap;
 }
 .company-chip.dead { opacity: 0.35; text-decoration: line-through; }
-.company-chip .chip-funding { color: #4ade80; margin-left: 3px; }
+.company-chip .chip-funding { color: #4ade80; margin-left: 4px; font-weight: 500; }
 
 /* Detail treemap view */
 #view-detail {
-  padding: 10px;
+  padding: 12px 16px;
 }
 .detail-header {
   display: flex;
   align-items: center;
   gap: 12px;
-  margin-bottom: 8px;
+  margin-bottom: 10px;
   flex-shrink: 0;
 }
 .back-btn {
-  background: #1a1a1a;
-  border: 1px solid #333;
-  border-radius: 5px;
-  padding: 4px 12px;
-  color: #4ade80;
-  font-size: 0.78rem;
+  background: rgba(255,255,255,0.08);
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 6px;
+  padding: 5px 14px;
+  color: rgba(255,255,255,0.9);
+  font-size: 13px;
+  font-weight: 500;
   cursor: pointer;
+  box-shadow: rgba(15,15,15,0.1) 0px 0px 0px 1px inset, rgba(15,15,15,0.1) 0px 1px 2px;
+  transition: background 100ms ease-out;
 }
-.back-btn:hover { background: #222; }
-.detail-title { font-size: 1rem; font-weight: 600; }
+.back-btn:hover { background: rgba(255,255,255,0.12); }
+.detail-title { font-size: 18px; font-weight: 600; }
 #detail-treemap-wrap { flex: 1; min-height: 0; }
 #detail-treemap-wrap svg { display: block; }
 
 /* Sidebar */
 .sidebar {
   width: 300px;
-  border-left: 1px solid #222;
+  border-left: 1px solid rgba(255,255,255,0.08);
   display: flex;
   flex-direction: column;
   overflow: hidden;
   flex-shrink: 0;
-  background: #0d0d0d;
+  background: #242426;
 }
 .sidebar-header {
-  padding: 7px 12px;
-  font-size: 0.68rem;
-  color: #555;
+  padding: 10px 14px;
+  font-size: 11px;
+  font-weight: 700;
+  color: rgba(255,255,255,0.4);
   text-transform: uppercase;
-  letter-spacing: 0.05em;
-  border-bottom: 1px solid #1a1a1a;
+  letter-spacing: 0.03em;
+  border-bottom: 1px solid rgba(255,255,255,0.08);
   flex-shrink: 0;
 }
 .company-list { flex: 1; overflow-y: auto; }
 .company-item {
-  padding: 6px 12px;
-  border-bottom: 1px solid #111;
+  padding: 8px 14px;
+  border-bottom: 1px solid rgba(255,255,255,0.05);
   cursor: default;
-  transition: background 0.1s;
+  transition: background 100ms ease-out;
 }
-.company-item:hover { background: #141414; }
+.company-item:hover { background: rgba(255,255,255,0.04); }
 .company-item.clickable { cursor: pointer; }
-.company-item .ci-name { font-size: 0.8rem; font-weight: 500; display: flex; align-items: baseline; gap: 5px; }
+.company-item .ci-name { font-size: 14px; font-weight: 500; display: flex; align-items: baseline; gap: 6px; }
 .company-item .ci-funding {
   display: inline-block;
-  background: #0f2a0f;
+  background: rgba(74,222,128,0.15);
   color: #4ade80;
-  font-size: 0.64rem;
-  padding: 1px 5px;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 1px 6px;
   border-radius: 3px;
 }
-.company-item .ci-meta { color: #555; font-size: 0.65rem; margin-top: 1px; }
+.company-item .ci-meta { color: rgba(255,255,255,0.35); font-size: 12px; margin-top: 2px; }
 .company-item.dead .ci-name { color: #f87171; text-decoration: line-through; opacity: 0.6; }
 
 /* Tooltip */
 #tooltip {
   position: fixed;
-  background: #181818;
-  border: 1px solid #2a2a2a;
-  border-radius: 8px;
-  padding: 11px 13px;
-  font-size: 0.78rem;
+  background: rgb(15,15,15);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 6px;
+  padding: 12px 14px;
+  font-size: 14px;
   pointer-events: none;
   z-index: 9999;
-  max-width: 280px;
-  box-shadow: 0 6px 24px rgba(0,0,0,0.7);
+  max-width: 300px;
+  box-shadow: rgba(15,15,15,0.05) 0px 0px 0px 1px, rgba(15,15,15,0.1) 0px 5px 10px, rgba(15,15,15,0.2) 0px 15px 40px;
   display: none;
+  color: rgba(255,255,255,0.9);
 }
-#tooltip .tt-name { font-weight: 600; font-size: 0.88rem; margin-bottom: 6px; }
-#tooltip .tt-row { display: flex; justify-content: space-between; gap: 12px; padding: 2px 0; }
-#tooltip .tt-label { color: #666; }
-#tooltip .tt-desc { margin-top: 6px; color: #777; font-size: 0.7rem; line-height: 1.4; border-top: 1px solid #222; padding-top: 6px; }
+#tooltip .tt-name { font-weight: 600; font-size: 15px; margin-bottom: 8px; }
+#tooltip .tt-row { display: flex; justify-content: space-between; gap: 16px; padding: 3px 0; font-size: 13px; }
+#tooltip .tt-label { color: rgba(255,255,255,0.4); }
+#tooltip .tt-desc { margin-top: 8px; color: rgba(255,255,255,0.6); font-size: 13px; line-height: 1.5; border-top: 1px solid rgba(255,255,255,0.08); padding-top: 8px; }
 </style>
 </head>
 <body>
@@ -354,10 +417,16 @@ body {
   <div class="filter-group">
     <label>Show:</label>
     <button class="toggle-btn active" id="btnClassified" onclick="setClass('CLASSIFIED')">Classified</button>
+    <button class="toggle-btn" id="btnFunded" onclick="setClass('FUNDED')">Funded</button>
     <button class="toggle-btn" id="btnAllClass" onclick="setClass('ALL')">All</button>
   </div>
   <div class="filter-group">
     <input type="text" class="search-inline" id="search" placeholder="Search companies...">
+  </div>
+  <div class="filter-group">
+    <label>Funded:</label>
+    <input type="range" id="funding-slider" min="0" max="7" value="0" class="funding-slider">
+    <span id="funding-slider-label" style="font-size:12px;font-weight:500;color:rgba(255,255,255,0.7);min-width:36px">Any</span>
   </div>
 </div>
 
@@ -366,19 +435,20 @@ body {
   <div class="tab active" id="tab-pack" onclick="switchView('pack')">Overview</div>
   <div class="tab" id="tab-sectors" onclick="switchView('sectors')">Sectors</div>
   <div class="tab hidden" id="tab-detail">Detail</div>
+  <div class="zoom-label" id="zoom-label"></div>
 </div>
 
 <!-- Main -->
 <div class="main">
 
   <!-- Circle Packing View -->
-  <div class="view-panel" id="view-pack" style="display:flex;gap:0">
+  <div class="view-panel" id="view-pack">
     <!-- Left sidebar: sector filters + size toggle -->
-    <div style="width:170px;flex-shrink:0;border-right:1px solid #222;padding:8px;overflow-y:auto;background:#0a0a0a">
-      <div style="font-size:0.68rem;color:#555;text-transform:uppercase;letter-spacing:0.05em;margin-bottom:4px">Sectors</div>
+    <div data-pack-sidebar style="width:170px;flex-shrink:0;border-right:1px solid rgba(255,255,255,0.1);padding:8px;overflow-y:auto;background:#242426">
+      <div style="font-size:0.68rem;color:rgba(255,255,255,0.45);text-transform:uppercase;letter-spacing:0.05em;margin-bottom:4px">Sectors</div>
       <div class="sector-checks" id="sector-checks"></div>
-      <div style="margin-top:10px;border-top:1px solid #222;padding-top:8px">
-        <div style="font-size:0.68rem;color:#555;text-transform:uppercase;letter-spacing:0.05em;margin-bottom:4px">Size by</div>
+      <div style="margin-top:10px;border-top:1px solid rgba(255,255,255,0.1);padding-top:8px">
+        <div style="font-size:0.68rem;color:rgba(255,255,255,0.45);text-transform:uppercase;letter-spacing:0.05em;margin-bottom:4px">Size by</div>
         <div class="pack-size-toggle">
           <button id="btn-size-funding" class="active" onclick="setSizeMode('funding')">Funding</button>
           <button id="btn-size-count" onclick="setSizeMode('count')">Count</button>
@@ -386,8 +456,9 @@ body {
       </div>
     </div>
     <!-- Pack canvas -->
-    <div style="flex:1;position:relative;overflow:hidden">
+    <div style="flex:1;position:relative;overflow:hidden" id="pack-canvas">
       <svg id="pack-svg"></svg>
+      <div id="pack-treemap-overlay" style="display:none;position:absolute;inset:0;background:#2e2f31;overflow:hidden;flex-direction:column"></div>
       <div class="pack-methodology" id="pack-methodology">Circle area proportional to log(funding)</div>
     </div>
   </div>
@@ -408,7 +479,7 @@ body {
 
   <!-- Sidebar: company list -->
   <div class="sidebar">
-    <div class="sidebar-header">Companies &mdash; <span id="list-count">0</span></div>
+    <div class="sidebar-header"><span id="sidebar-label">Companies</span> &mdash; <span id="list-count">0</span></div>
     <div class="company-list" id="company-list"></div>
   </div>
 
@@ -488,12 +559,15 @@ function hexToRgba(hex, alpha) {
 // ─────────────────────────────────────────────
 // Application state
 // ─────────────────────────────────────────────
-var filters = { geo: 'ALL', classification: 'CLASSIFIED', search: '' };
+var filters = { geo: 'ALL', classification: 'CLASSIFIED', search: '', minFunding: 0 };
+var FUNDING_STEPS = [0, 1e5, 5e5, 1e6, 5e6, 10e6, 50e6, 100e6];
 var sizeMode = 'funding';
 var excludedSectors = new Set();
 var currentView = 'pack';
 var detailSector = null;
 var prevView = 'pack';
+var zoomedCategory = null;  // track which sector is zoomed in circle packing
+var _renderPackTreemap = null;  // reference to treemap renderer inside buildCirclePacking
 
 // ─────────────────────────────────────────────
 // Filter helpers
@@ -511,6 +585,7 @@ function setGeo(mode) {
 function setClass(mode) {
   filters.classification = mode;
   document.getElementById('btnClassified').classList.toggle('active', mode === 'CLASSIFIED');
+  document.getElementById('btnFunded').classList.toggle('active', mode === 'FUNDED');
   document.getElementById('btnAllClass').classList.toggle('active', mode === 'ALL');
   refresh();
 }
@@ -526,10 +601,13 @@ function setSizeMode(mode) {
 
 function getFiltered() {
   var q = filters.search.toLowerCase();
+  var minF = filters.minFunding;
   return DATA.companies.filter(function(c) {
     if (filters.geo === 'CA' && c.hq_state !== 'CA') return false;
     if (filters.geo === 'US' && c.country && c.country !== 'US') return false;
     if (filters.classification === 'CLASSIFIED' && c.category === 'UNKNOWN') return false;
+    if (filters.classification === 'FUNDED' && !(c.funding > 0)) return false;
+    if (minF > 0 && (c.funding || 0) < minF) return false;
     if (q && !c.name.toLowerCase().includes(q) && !(c.description || '').toLowerCase().includes(q)) return false;
     return true;
   });
@@ -594,6 +672,10 @@ function switchView(view, sector) {
     detailSector = null;
   }
 
+  // Hide sidebar for sectors and detail views — give them full width
+  var sidebar = document.querySelector('.sidebar');
+  sidebar.style.display = (view === 'pack') ? '' : 'none';
+
   refresh();
 }
 
@@ -619,6 +701,7 @@ function buildSectorChips(sectors) {
     var cb = document.createElement('input');
     cb.type = 'checkbox';
     cb.checked = !excludedSectors.has(s.category);
+    cb.dataset.category = s.category;
 
     var swatch = document.createElement('span');
     swatch.className = 'swatch';
@@ -710,7 +793,7 @@ function buildCirclePacking(filtered) {
     var fitDim = Math.min(W, H);
     var scale = fitDim / (node.r * 2);
     if (node === root) scale *= 1.05;
-    if (node !== root) scale *= 0.9;
+    if (node !== root) scale *= 2.2;
     var tx = W / 2 - node.x * scale;
     var ty = H / 2 - node.y * scale;
 
@@ -741,8 +824,156 @@ function buildCirclePacking(filtered) {
 
   function zoomTo(node) {
     currentZoom = node;
-    applyTransform(node, 750);
     updateSectorLabelVisibility(null);
+
+    var zl = document.getElementById('zoom-label');
+    var overlay = document.getElementById('pack-treemap-overlay');
+    var packSvg = document.getElementById('pack-svg');
+    var leftSidebar = packSvg.closest('#view-pack').querySelector('[data-pack-sidebar]');
+    var methodology = document.getElementById('pack-methodology');
+
+    if (node !== root && node.data && node.data.category) {
+      zoomedCategory = node.data.category;
+      zl.textContent = LABELS[zoomedCategory] || zoomedCategory;
+      zl.classList.add('visible');
+
+      // Hide circle packing + left sidebar, show full-width treemap
+      packSvg.style.display = 'none';
+      if (leftSidebar) leftSidebar.style.display = 'none';
+      if (methodology) methodology.style.display = 'none';
+      overlay.style.display = 'flex';
+      renderPackTreemap(zoomedCategory);
+    } else {
+      zoomedCategory = null;
+      zl.classList.remove('visible');
+
+      // Restore circle packing + left sidebar
+      overlay.style.display = 'none';
+      overlay.innerHTML = '';
+      packSvg.style.display = '';
+      if (leftSidebar) leftSidebar.style.display = '';
+      if (methodology) methodology.style.display = '';
+    }
+    updateSidebarForZoom();
+  }
+
+  function renderPackTreemap(category) {
+    _renderPackTreemap = renderPackTreemap;  // expose for refresh()
+    var overlay = document.getElementById('pack-treemap-overlay');
+    overlay.innerHTML = '';
+
+    // Back button
+    var backBar = document.createElement('div');
+    backBar.style.cssText = 'display:flex;align-items:center;gap:10px;padding:6px 10px;flex-shrink:0;';
+    var backBtn = document.createElement('button');
+    backBtn.className = 'back-btn';
+    backBtn.innerHTML = '&#8592; Overview';
+    backBtn.addEventListener('click', function() { zoomTo(root); });
+    backBar.appendChild(backBtn);
+    overlay.appendChild(backBar);
+
+    var companies = getFiltered().filter(function(c) { return c.category === category; });
+    if (!companies.length) return;
+
+    // Wrapper div that flex-grows to fill remaining space
+    var treemapWrap = document.createElement('div');
+    treemapWrap.style.cssText = 'flex:1;min-height:0;overflow:hidden;';
+    overlay.appendChild(treemapWrap);
+
+    var W = treemapWrap.clientWidth || overlay.clientWidth || 800;
+    var H = treemapWrap.clientHeight || (overlay.clientHeight - 40) || 500;
+    var color = COLORS[category] || '#444';
+    var tooltip = document.getElementById('tooltip');
+
+    var treemapRoot = d3.hierarchy({
+      name: 'root',
+      children: companies.map(function(c) {
+        return Object.assign({}, c, { value: Math.max(c.funding || 1, 1) });
+      })
+    })
+      .sum(function(d) { return d.value; })
+      .sort(function(a, b) { return b.value - a.value; });
+
+    d3.treemap().size([W, H]).padding(3).round(true)(treemapRoot);
+
+    var treeSvg = d3.select(treemapWrap).append('svg').attr('width', W).attr('height', H);
+
+    var leaves = treeSvg.selectAll('.leaf').data(treemapRoot.leaves()).join('g')
+      .attr('transform', function(d) { return 'translate(' + d.x0 + ',' + d.y0 + ')'; });
+
+    leaves.append('rect')
+      .attr('width', function(d) { return Math.max(d.x1 - d.x0, 0); })
+      .attr('height', function(d) { return Math.max(d.y1 - d.y0, 0); })
+      .attr('fill', color)
+      .attr('rx', 3)
+      .attr('stroke', '#2e2f31')
+      .attr('stroke-width', 1)
+      .style('opacity', function(d) { return d.data.status === 'DEAD' ? 0.3 : 0.85; })
+      .style('filter', function(d) { return d.data.status === 'DEAD' ? 'grayscale(100%)' : 'none'; })
+      .style('cursor', 'pointer')
+      .on('mousemove', function(e, d) {
+        var desc = d.data.description || '';
+        var shortDesc = desc.length > 100 ? desc.slice(0, 100) + '...' : desc;
+        var statusColor = d.data.status === 'LIVE' ? '#4ade80' : d.data.status === 'DEAD' ? '#f87171' : '#888';
+        tooltip.innerHTML =
+          '<div class="tt-name">' + esc(d.data.name) + '</div>' +
+          '<div class="tt-row"><span class="tt-label">Funding</span><span>' + (fmt(d.data.funding) || 'N/A') + '</span></div>' +
+          '<div class="tt-row"><span class="tt-label">Status</span><span style="color:' + statusColor + '">' + esc(d.data.status) + '</span></div>' +
+          (shortDesc ? '<div class="tt-desc">' + esc(shortDesc) + '</div>' : '');
+        tooltip.style.display = 'block';
+        tooltip.style.left = Math.min(e.clientX + 14, window.innerWidth - 295) + 'px';
+        tooltip.style.top = Math.min(e.clientY - 10, window.innerHeight - 180) + 'px';
+      })
+      .on('mouseleave', function() { tooltip.style.display = 'none'; })
+      .on('dblclick', function(e, d) {
+        var url = d.data.status === 'DEAD' ? safeUrl(d.data.wayback_url) : safeUrl(d.data.website);
+        if (url) window.open(url, '_blank', 'noopener');
+      });
+
+    // Company name labels — fit to rectangle
+    leaves.each(function(d) {
+      var rectW = d.x1 - d.x0;
+      var rectH = d.y1 - d.y0;
+      if (rectW < 28 || rectH < 14) return;
+
+      var name = d.data.name;
+      var funding = d.data.funding > 0 ? fmt(d.data.funding) : '';
+      var fontSize = Math.max(9, Math.min(16, Math.min(rectW / 8, rectH / 3)));
+
+      var nameEl = d3.select(this).append('text')
+        .attr('x', 5)
+        .attr('y', fontSize + 3)
+        .attr('font-size', fontSize + 'px')
+        .attr('font-weight', '600')
+        .attr('fill', '#fff')
+        .attr('pointer-events', 'none')
+        .style('text-shadow', '0 1px 3px rgba(0,0,0,0.9)');
+
+      // Truncate name to fit
+      var maxChars = Math.floor((rectW - 10) / (fontSize * 0.58));
+      var label = name.length > maxChars ? name.slice(0, Math.max(maxChars - 1, 3)) + '\u2026' : name;
+      nameEl.text(label);
+
+      // Funding on second line if space
+      if (funding && rectH > fontSize * 2 + 8) {
+        d3.select(this).append('text')
+          .attr('x', 5)
+          .attr('y', fontSize * 2 + 5)
+          .attr('font-size', Math.max(8, fontSize * 0.75) + 'px')
+          .attr('fill', '#4ade80')
+          .attr('pointer-events', 'none')
+          .style('text-shadow', '0 1px 2px rgba(0,0,0,0.8)')
+          .text(funding);
+      }
+    });
+
+    // Click overlay background to zoom back out
+    treeSvg.on('click', function(e) {
+      if (e.target === treeSvg.node()) {
+        tooltip.style.display = 'none';
+        zoomTo(root);
+      }
+    });
   }
 
   // Render sector circles
@@ -760,6 +991,12 @@ function buildCirclePacking(filtered) {
       .attr('stroke', color)
       .attr('stroke-width', 1.5)
       .style('cursor', 'pointer')
+      .on('mouseenter', function() {
+        updateSectorLabelVisibility(sNode);
+      })
+      .on('mouseleave', function() {
+        updateSectorLabelVisibility(null);
+      })
       .on('click', function(e) {
         e.stopPropagation();
         tooltip.style.display = 'none';
@@ -785,7 +1022,7 @@ function buildCirclePacking(filtered) {
       .attr('cy', lNode.y)
       .attr('r', Math.max(lNode.r, 0))
       .attr('fill', color)
-      .attr('stroke', '#0a0a0a')
+      .attr('stroke', '#2e2f31')
       .attr('stroke-width', 0.5)
       .style('opacity', isDead ? 0.3 : 0.85)
       .style('filter', isDead ? 'grayscale(100%)' : 'none')
@@ -875,28 +1112,8 @@ function buildCirclePacking(filtered) {
     });
   }
 
-  // Company name labels — shown when screen-space radius > 20px
-  function updateCompanyLabels(scale) {
-    g.selectAll('.company-name-label').remove();
-    leafNodes.forEach(function(lNode) {
-      if (lNode.r * scale > 20) {
-        var c = lNode.data;
-        var maxChars = Math.floor((lNode.r * scale * 2) / 6.5);
-        var label = c.name;
-        if (label.length > maxChars) label = label.slice(0, Math.max(maxChars - 1, 3)) + '\u2026';
-        g.append('text')
-          .attr('class', 'company-name-label')
-          .attr('x', lNode.x)
-          .attr('y', lNode.y)
-          .attr('text-anchor', 'middle')
-          .attr('dominant-baseline', 'middle')
-          .attr('font-size', Math.max(5, Math.min(10, lNode.r * 0.45)) / scale)
-          .attr('fill', '#fff')
-          .attr('pointer-events', 'none')
-          .text(label);
-      }
-    });
-  }
+  // Company name labels — disabled in circle view (treemap handles labels when zoomed)
+  function updateCompanyLabels(scale) {}
 
   // Set initial transform (fit root)
   applyTransform(root, 0);
@@ -979,7 +1196,7 @@ function renderDetailView(companies, category) {
     .attr('height', function(d) { return Math.max(d.y1 - d.y0, 0); })
     .attr('fill', color)
     .attr('rx', 3)
-    .attr('stroke', '#0a0a0a')
+    .attr('stroke', '#2e2f31')
     .attr('stroke-width', 0.5)
     .style('opacity', function(d) { return d.data.status === 'DEAD' ? 0.3 : 0.85; })
     .style('filter', function(d) { return d.data.status === 'DEAD' ? 'grayscale(100%)' : 'none'; })
@@ -1003,20 +1220,39 @@ function renderDetailView(companies, category) {
       if (url) window.open(url, '_blank', 'noopener');
     });
 
-  leaves.append('text')
-    .attr('x', 4)
-    .attr('y', 14)
-    .attr('font-size', '9px')
-    .attr('fill', '#fff')
-    .attr('pointer-events', 'none')
-    .style('text-shadow', '0 1px 2px rgba(0,0,0,0.8)')
-    .text(function(d) {
-      var rectW = d.x1 - d.x0;
-      if (rectW < 36) return '';
-      var maxLen = Math.floor(rectW / 5.5);
-      var lbl = d.data.funding > 0 ? (d.data.name + ' ' + fmt(d.data.funding)) : d.data.name;
-      return lbl.length > maxLen ? lbl.slice(0, Math.max(maxLen - 1, 3)) + '\u2026' : lbl;
-    });
+  leaves.each(function(d) {
+    var rectW = d.x1 - d.x0;
+    var rectH = d.y1 - d.y0;
+    if (rectW < 28 || rectH < 14) return;
+
+    var name = d.data.name;
+    var funding = d.data.funding > 0 ? fmt(d.data.funding) : '';
+    var fontSize = Math.max(9, Math.min(16, Math.min(rectW / 8, rectH / 3)));
+
+    var maxChars = Math.floor((rectW - 10) / (fontSize * 0.58));
+    var label = name.length > maxChars ? name.slice(0, Math.max(maxChars - 1, 3)) + '\u2026' : name;
+
+    d3.select(this).append('text')
+      .attr('x', 5)
+      .attr('y', fontSize + 3)
+      .attr('font-size', fontSize + 'px')
+      .attr('font-weight', '600')
+      .attr('fill', '#fff')
+      .attr('pointer-events', 'none')
+      .style('text-shadow', '0 1px 3px rgba(0,0,0,0.9)')
+      .text(label);
+
+    if (funding && rectH > fontSize * 2 + 8) {
+      d3.select(this).append('text')
+        .attr('x', 5)
+        .attr('y', fontSize * 2 + 5)
+        .attr('font-size', Math.max(8, fontSize * 0.75) + 'px')
+        .attr('fill', '#4ade80')
+        .attr('pointer-events', 'none')
+        .style('text-shadow', '0 1px 2px rgba(0,0,0,0.8)')
+        .text(funding);
+    }
+  });
 }
 
 // ─────────────────────────────────────────────
@@ -1060,6 +1296,45 @@ function renderList(companies) {
 }
 
 // ─────────────────────────────────────────────
+// Sidebar + sector checks sync with zoom
+// ─────────────────────────────────────────────
+function updateSidebarForZoom() {
+  var filtered = getFiltered();
+  var sidebarLabel = document.getElementById('sidebar-label');
+  var sidebarHeader = document.querySelector('.sidebar-header');
+  if (zoomedCategory) {
+    var sectorCompanies = filtered.filter(function(c) { return c.category === zoomedCategory; });
+    sidebarLabel.textContent = LABELS[zoomedCategory] || zoomedCategory;
+    sidebarHeader.style.color = '#e0e0e0';
+    renderList(sectorCompanies);
+    // Visually untick other sectors in the sidebar checkboxes
+    document.querySelectorAll('.sector-check').forEach(function(row) {
+      var cb = row.querySelector('input[type=checkbox]');
+      var cat = cb ? cb.dataset.category : null;
+      if (cat) {
+        var isZoomed = cat === zoomedCategory;
+        cb.checked = isZoomed;
+        row.classList.toggle('excluded', !isZoomed);
+      }
+    });
+  } else {
+    sidebarLabel.textContent = 'Companies';
+    sidebarHeader.style.color = '';
+    renderList(filtered);
+    // Restore checkboxes to match actual excludedSectors state
+    document.querySelectorAll('.sector-check').forEach(function(row) {
+      var cb = row.querySelector('input[type=checkbox]');
+      var cat = cb ? cb.dataset.category : null;
+      if (cat) {
+        var isExcluded = excludedSectors.has(cat);
+        cb.checked = !isExcluded;
+        row.classList.toggle('excluded', isExcluded);
+      }
+    });
+  }
+}
+
+// ─────────────────────────────────────────────
 // Main refresh
 // ─────────────────────────────────────────────
 function refresh() {
@@ -1069,8 +1344,19 @@ function refresh() {
 
   if (currentView === 'pack') {
     buildSectorChips(sectors);
-    buildCirclePacking(filtered);
-    renderList(filtered);
+    if (zoomedCategory && _renderPackTreemap) {
+      // Zoomed into a sector — re-render treemap overlay, don't rebuild circles
+      _renderPackTreemap(zoomedCategory);
+      var zoomedCompanies = filtered.filter(function(c) { return c.category === zoomedCategory; });
+      renderList(zoomedCompanies);
+      document.getElementById('sidebar-label').textContent = LABELS[zoomedCategory] || zoomedCategory;
+      document.querySelector('.sidebar-header').style.color = 'rgba(255,255,255,0.9)';
+    } else {
+      buildCirclePacking(filtered);
+      renderList(filtered);
+      document.getElementById('sidebar-label').textContent = 'Companies';
+      document.querySelector('.sidebar-header').style.color = '';
+    }
   } else if (currentView === 'sectors') {
     renderSectorsView(sectors);
     renderList(filtered);
@@ -1086,6 +1372,16 @@ function refresh() {
 // ─────────────────────────────────────────────
 document.getElementById('search').addEventListener('input', function(e) {
   filters.search = e.target.value;
+  refresh();
+});
+
+// Funding slider
+var fundingSlider = document.getElementById('funding-slider');
+var fundingLabel = document.getElementById('funding-slider-label');
+fundingSlider.addEventListener('input', function() {
+  var idx = parseInt(fundingSlider.value);
+  filters.minFunding = FUNDING_STEPS[idx];
+  fundingLabel.textContent = idx === 0 ? 'Any' : fmt(FUNDING_STEPS[idx]) + '+';
   refresh();
 });
 

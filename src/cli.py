@@ -234,6 +234,51 @@ def cmd_enrich(args):
     db.close()
 
 
+def cmd_refine(args):
+    db = Database(DB_PATH)
+
+    if args.refine_action == "plan":
+        from src.enrichment.web_refine import get_enrichment_queue, make_batches, build_agent_prompt
+        queue = get_enrichment_queue(db, limit=args.limit)
+        print(f"Found {len(queue)} UNKNOWN companies for enrichment")
+
+        batches = make_batches(queue, batch_size=args.batch_size)
+        print(f"Split into {len(batches)} batches of ~{args.batch_size}\n")
+
+        prompts_dir = EXPORTS_DIR / "refine_prompts"
+        prompts_dir.mkdir(parents=True, exist_ok=True)
+
+        for i, batch in enumerate(batches):
+            prompt = build_agent_prompt(batch, i + 1)
+            path = prompts_dir / f"batch_{i+1:02d}.txt"
+            with open(path, "w", encoding="utf-8") as f:
+                f.write(prompt)
+            print(f"Batch {i+1}: {len(batch)} companies -> {path}")
+
+        print(f"\nPrompts saved to {prompts_dir}/")
+
+    elif args.refine_action == "import":
+        from src.enrichment.web_refine import import_results
+        path = Path(args.path)
+        stats = import_results(db, path, dry_run=args.dry_run)
+        prefix = "[DRY RUN] " if args.dry_run else ""
+        print(f"\n{prefix}Import summary:")
+        print(f"  Total results: {stats['total']}")
+        print(f"  Updated:       {stats['updated']}")
+        print(f"  Skipped:       {stats['skipped']}")
+        print(f"  Not found:     {stats['not_found']}")
+        if stats.get("fields"):
+            print("  Fields updated:")
+            for field, count in stats["fields"].items():
+                print(f"    {field}: {count}")
+
+    elif args.refine_action == "normalize":
+        count = db.normalize_country_values()
+        print(f"Normalized {count} country values")
+
+    db.close()
+
+
 def cmd_dashboard(args):
     """Generate interactive treemap dashboard HTML."""
     db = Database(DB_PATH)
@@ -301,7 +346,7 @@ def cmd_dashboard(args):
     }
 
     from src.dashboard_template import render_dashboard
-    output_path = Path(__file__).parent.parent / "dashboard.html"
+    output_path = Path(__file__).parent.parent / "index.html"
     render_dashboard(dashboard_data, output_path)
     print(f"Dashboard written to {output_path}")
     db.close()
@@ -324,6 +369,17 @@ def main():
 
     p_dash = sub.add_parser("dashboard", help="Generate interactive treemap dashboard")
     p_dash.set_defaults(func=cmd_dashboard)
+
+    p_refine = sub.add_parser("refine", help="Web-based data refinement")
+    refine_sub = p_refine.add_subparsers(dest="refine_action")
+    p_refine_plan = refine_sub.add_parser("plan", help="Generate research batch prompts")
+    p_refine_plan.add_argument("--limit", type=int, default=None, help="Max companies")
+    p_refine_plan.add_argument("--batch-size", type=int, default=25, help="Companies per batch")
+    p_refine_import = refine_sub.add_parser("import", help="Import research results")
+    p_refine_import.add_argument("path", help="JSON file or directory")
+    p_refine_import.add_argument("--dry-run", action="store_true")
+    refine_sub.add_parser("normalize", help="Normalize country values")
+    p_refine.set_defaults(func=cmd_refine)
 
     p_export = sub.add_parser("export", help="Export data")
     p_export.add_argument("format", choices=["csv", "json"])
