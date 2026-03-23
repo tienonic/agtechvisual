@@ -25,6 +25,18 @@ SEARCH_TERMS = [
     '"vertical farming"',
     '"crop sensor"',
     '"livestock technology"',
+    '"food tech"',
+    '"foodtech"',
+    '"agri-tech"',
+    '"ag tech"',
+    '"agricultural biotechnology"',
+    '"agricultural AI"',
+    '"farm software"',
+    '"crop monitoring"',
+    '"biostimulant"',
+    '"indoor farming"',
+    '"controlled environment agriculture"',
+    '"plant breeding"',
 ]
 
 

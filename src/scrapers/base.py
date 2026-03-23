@@ -44,6 +44,9 @@ class BaseScraper(ABC):
             try:
                 response = self.session.request(method, url, **kwargs)
                 if response.status_code == 429:
+                    if attempt == self.max_retries:
+                        logger.error(f"Rate limited after {self.max_retries} attempts: {url}")
+                        raise requests.HTTPError(f"429 Too Many Requests: {url}", response=response)
                     wait = min(2 ** attempt, 30)
                     logger.warning(f"Rate limited on {url}, waiting {wait}s")
                     time.sleep(wait)

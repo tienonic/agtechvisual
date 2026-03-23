@@ -28,6 +28,8 @@ SCRAPERS = {
     "thrive_alumni": "src.scrapers.thrive:ThriveAlumniScraper",
     "wellfound": "src.scrapers.wellfound:WellfoundScraper",
     "sec_edgar": "src.scrapers.sec_edgar:SECEdgarScraper",
+    "nsf_sbir": "src.scrapers.nsf_sbir:NSFSBIRScraper",
+    "seed_list": "src.scrapers.seed_list:SeedListScraper",
 }
 
 ENRICHERS = {
@@ -35,6 +37,7 @@ ENRICHERS = {
     "tags": "src.enrichment.tag_classifier:reclassify_with_tags",
     "dns": "src.enrichment.dns_check:check_websites",
     "wayback": "src.enrichment.wayback:check_wayback",
+    "funding": "src.enrichment.funding_lookup:enrich_funding",
 }
 
 

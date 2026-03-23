@@ -18,8 +18,8 @@ from src.taxonomy import classify
 logger = logging.getLogger(__name__)
 
 BASE_URL = "https://portal.nifa.usda.gov/lmd4/recent_awards/get_data.js"
-PAGE_SIZE = 30
-MAX_PAGES = 100  # safety cap
+PAGE_SIZE = 1000
+MAX_PAGES = 10  # safety cap — 2821 CA rows / 1000 = 3 pages
 
 UNIVERSITY_INDICATORS = [
     "university", "college", "regents", "board of trustees",
@@ -28,6 +28,16 @@ UNIVERSITY_INDICATORS = [
     "experiment station", "institute of technology",
     "polytechnic", "cooperative extension",
 ]
+
+
+def _strip_html(value: str) -> str:
+    """Strip HTML div wrappers from NIFA API cell values."""
+    if not value:
+        return ""
+    from bs4 import BeautifulSoup
+    if "<" in value:
+        return BeautifulSoup(value, "html.parser").get_text(strip=True)
+    return value.strip()
 
 
 def _is_educational_or_gov(name: str) -> bool:
@@ -48,7 +58,7 @@ class NIFAScraper(BaseScraper):
         encoded_filters = urllib.parse.quote(filters)
 
         for page in range(1, MAX_PAGES + 1):
-            url = f"{BASE_URL}?page={page}&columnFilters={encoded_filters}"
+            url = f"{BASE_URL}?perPage={PAGE_SIZE}&page={page}&columnFilters={encoded_filters}"
 
             try:
                 resp = self.fetch(url)
@@ -76,19 +86,19 @@ class NIFAScraper(BaseScraper):
             for row in rows:
                 # Row can be dict or list
                 if isinstance(row, dict):
-                    grantee = row.get("Grantee Name", "").strip()
-                    title = row.get("Grant Title", "").strip()
-                    program = row.get("Program Name", "") or ""
-                    program_area = row.get("Program Area Name", "") or ""
-                    amount_str = str(row.get("Award Dollars", "")).replace(",", "").replace("$", "").strip()
-                    award_date = row.get("Award Date", "")
+                    grantee = _strip_html(row.get("Grantee Name", ""))
+                    title = _strip_html(row.get("Grant Title", ""))
+                    program = _strip_html(row.get("Program Name", "") or "")
+                    program_area = _strip_html(row.get("Program Area Name", "") or "")
+                    amount_str = _strip_html(str(row.get("Award Dollars", ""))).replace(",", "").replace("$", "").strip()
+                    award_date = _strip_html(row.get("Award Date", ""))
                 elif isinstance(row, list) and len(row) >= 6:
-                    award_date = row[0] if len(row) > 0 else ""
-                    grantee = row[5] if len(row) > 5 else ""
-                    title = row[3] if len(row) > 3 else ""
-                    amount_str = str(row[6]).replace(",", "").replace("$", "").strip() if len(row) > 6 else ""
-                    program = row[7] if len(row) > 7 else ""
-                    program_area = row[8] if len(row) > 8 else ""
+                    award_date = _strip_html(row[0]) if len(row) > 0 else ""
+                    grantee = _strip_html(row[5]) if len(row) > 5 else ""
+                    title = _strip_html(row[3]) if len(row) > 3 else ""
+                    amount_str = _strip_html(str(row[6])).replace(",", "").replace("$", "").strip() if len(row) > 6 else ""
+                    program = _strip_html(row[7]) if len(row) > 7 else ""
+                    program_area = _strip_html(row[8]) if len(row) > 8 else ""
                 else:
                     continue
 

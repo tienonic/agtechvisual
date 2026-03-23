@@ -22,7 +22,7 @@ from src.taxonomy import classify
 
 logger = logging.getLogger(__name__)
 
-CSV_URL = "https://data.www.sbir.gov/awarddatapublic/award_data_no_abstract.csv"
+CSV_URL = "https://data.www.sbir.gov/mod_awarddatapublic_no_abstract/award_data_no_abstract.csv"
 CACHE_PATH = Path(__file__).parent.parent.parent / "fixtures" / "sbir_bulk_ca.csv"
 
 AG_AGENCIES = {"USDA"}
@@ -128,13 +128,13 @@ class SBIRBulkScraper(BaseScraper):
         # Stream to temp file, then filter CA rows to cache
         ca_rows = []
         total_bytes = 0
-        with tempfile.NamedTemporaryFile(mode="w", suffix=".csv", delete=False, encoding="utf-8") as tmp:
+        with tempfile.NamedTemporaryFile(mode="wb", suffix=".csv", delete=False) as tmp:
             tmp_path = tmp.name
-            for chunk in resp.iter_content(chunk_size=1024 * 1024, decode_unicode=True):
+            for chunk in resp.iter_content(chunk_size=1024 * 1024):
                 if chunk:
                     tmp.write(chunk)
-                    total_bytes += len(chunk.encode("utf-8", errors="replace"))
-                    if total_bytes % (10 * 1024 * 1024) == 0:
+                    total_bytes += len(chunk)
+                    if total_bytes % (10 * 1024 * 1024) < 1024 * 1024:
                         logger.info(f"  Downloaded {total_bytes // (1024*1024)}MB...")
 
         logger.info(f"Download complete ({total_bytes // (1024*1024)}MB). Filtering CA rows...")

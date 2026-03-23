@@ -20,14 +20,28 @@ def reclassify_unknowns(db: Database):
     for company in unknowns:
         text = f"{company.name} {company.description or ''}"
 
-        # Also check source records for additional text
-        records = db.conn.execute(
-            "SELECT raw_data FROM source_records WHERE company_id = ?",
+        # Pull grant titles and abstracts for richer classification
+        grants = db.conn.execute(
+            "SELECT title, abstract FROM grants WHERE company_id = ?",
             (company.id,),
         ).fetchall()
-        for rec in records:
-            if rec["raw_data"]:
-                text += f" {rec['raw_data']}"
+        for g in grants:
+            if g["title"]:
+                text += f" {g['title']}"
+            if g["abstract"]:
+                text += f" {g['abstract']}"
+
+        # Also check source records for additional text
+        try:
+            records = db.conn.execute(
+                "SELECT raw_data FROM source_records WHERE company_id = ?",
+                (company.id,),
+            ).fetchall()
+            for rec in records:
+                if rec["raw_data"]:
+                    text += f" {rec['raw_data']}"
+        except Exception:
+            pass  # source_records table may not exist
 
         new_category = classify(text)
         if new_category != Category.UNKNOWN:

@@ -1,0 +1,48 @@
+name,hq_city,hq_state,category,website,description
+Agtonomy,Campbell,CA,ROBOTICS,https://agtonomy.com,Autonomous tractor platform for specialty crop farming
+Iron Ox,San Carlos,CA,ROBOTICS,https://ironox.com,Robotic indoor farming using AI and autonomous systems
+Plenty,Compton,CA,INDOOR_CEA,https://plenty.ag,Indoor vertical farming with proprietary LED and climate tech
+Wild Type,San Francisco,CA,BIOTECH,https://wildtypefoods.com,Cultivated seafood using cellular agriculture
+Farmers Business Network,San Carlos,CA,FARM_SOFTWARE,https://fbn.com,Data-driven farmer network for inputs procurement and analytics
+InnerPlant,Davis,CA,PRECISION_AG,https://innerplant.com,Genetically engineered plants that signal stress via fluorescence
+CropX,San Francisco,CA,PRECISION_AG,https://cropx.com,Soil sensing and irrigation management platform
+Bowery Farming,New York,NY,INDOOR_CEA,https://boweryfarming.com,Indoor vertical farming with automation
+AppHarvest,Morehead,KY,INDOOR_CEA,https://appharvest.com,Large-scale controlled environment agriculture
+Abundant Robotics,Hayward,CA,ROBOTICS,https://abundantrobotics.com,Apple harvesting robots using vacuum technology
+Aigen,Seattle,WA,ROBOTICS,https://aigen.io,Solar-powered autonomous robots for regenerative farming
+BioConsortia,Davis,CA,BIOTECH,https://bioconsortia.com,Microbial crop protection and enhancement products
+Bayer Crop Science,St. Louis,MO,BIOTECH,https://cropscience.bayer.com,Crop science and digital farming
+Carbon Robotics,Seattle,WA,ROBOTICS,https://carbonrobotics.com,Laser weeding autonomous robots
+Cibus,San Diego,CA,BIOTECH,https://cibus.com,Non-transgenic gene editing for crop traits
+Driscoll's,Watsonville,CA,BIOTECH,https://driscolls.com,Berry genetics and breeding technology
+FloraPulse,Davis,CA,PRECISION_AG,https://florapulse.com,In-plant water stress sensors for precision irrigation
+Granular,San Francisco,CA,FARM_SOFTWARE,https://granular.ag,Farm management software platform
+GreenLight Biosciences,Medford,MA,BIOTECH,https://greenlightbiosciences.com,RNA-based crop protection products
+Harvest CROO Robotics,Tampa,FL,ROBOTICS,https://harvestcroo.com,Autonomous strawberry harvesting robots
+Inari,Cambridge,MA,BIOTECH,https://inari.com,Seed development using gene editing and AI
+Indigo Agriculture,Boston,MA,BIOTECH,https://indigoag.com,Microbial seed treatments and carbon marketplace
+Land O'Lakes,Minneapolis,MN,SUPPLY_CHAIN,https://landolakesinc.com,Agricultural cooperative with precision ag division
+Locus Agricultural Solutions,Solon,OH,AG_BIOCONTROL,https://locusag.com,Biological crop inputs for sustainable farming
+Motif FoodWorks,Boston,MA,BIOTECH,https://madewithmotif.com,Food ingredient innovation using biotechnology
+NovoNutrients,Sunnyvale,CA,BIOTECH,https://novonutrients.com,CO2-to-protein conversion for aquaculture feed
+Pheronym,Woodland,CA,AG_BIOCONTROL,https://pheronym.com,Nematode pheromones for biological pest control
+Provivi,Santa Monica,CA,AG_BIOCONTROL,https://provivi.com,Pheromone-based crop protection replacing pesticides
+Regrow Ag,San Francisco,CA,PRECISION_AG,https://regrow.ag,Remote sensing and MRV for regenerative agriculture
+Sound Agriculture,Emeryville,CA,BIOTECH,https://soundagriculture.com,Molecular technology for nutrient efficiency in crops
+Terramera,Vancouver,BC,AG_BIOCONTROL,https://terramera.com,AI-powered clean agriculture technology
+The EVERY Company,South San Francisco,CA,BIOTECH,https://theeverycompany.com,Animal-free protein ingredients via precision fermentation
+Trace Genomics,Burlingame,CA,PRECISION_AG,https://tracegenomics.com,Soil DNA analysis for disease and nutrient mapping
+Verdant Robotics,Hayward,CA,ROBOTICS,https://verdantrobotics.com,Precision spot spraying and weeding robots
+Waterbit,Milpitas,CA,WATER_IRRIGATION,https://waterbit.com,IoT-based smart irrigation management system
+Nitricity,Fremont,CA,BIOTECH,https://nitricity.co,On-site nitrogen fertilizer production from air and water
+Calysta,Menlo Park,CA,BIOTECH,https://calysta.com,Gas fermentation protein for animal feed
+Geltor,San Leandro,CA,BIOTECH,https://geltor.com,Animal-free collagen and gelatin via fermentation
+Lygos,Albany,CA,BIOTECH,https://lygos.com,Bio-based malonic acid production platform
+Plantible Foods,San Marcos,CA,BIOTECH,https://plantiblefoods.com,Sustainable plant protein from aquatic lemna
+Biome Makers,West Sacramento,CA,PRECISION_AG,https://biomemakers.com,Soil microbiome analysis for agriculture
+Aquabyte,San Francisco,CA,LIVESTOCK,https://aquabyte.ai,Computer vision for aquaculture monitoring
+Atlas AI,San Rafael,CA,PRECISION_AG,https://atlasai.co,Satellite and geospatial analytics for agriculture
+ClimateAI,San Francisco,CA,PRECISION_AG,https://climate.ai,AI climate risk platform for agriculture supply chains
+Seso,San Francisco,CA,FARM_SOFTWARE,https://sesolabor.com,Workforce management platform for agricultural labor
+Pyka,Oakland,CA,PRECISION_AG,https://flypyka.com,Autonomous electric crop dusting aircraft
+Afresh,San Francisco,CA,SUPPLY_CHAIN,https://afresh.com,AI-powered fresh food supply chain optimization
