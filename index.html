@@ -408,7 +408,7 @@ body {
   </div>
   <div class="filter-group">
     <label>Max Funding:</label>
-    <input type="range" id="funding-slider" min="0" max="13" value="13" class="funding-slider">
+    <input type="range" id="funding-slider" min="0" max="13" value="0" class="funding-slider">
     <span id="funding-slider-label" style="font-size:12px;font-weight:500;color:rgba(255,255,255,0.7);min-width:36px">All</span>
   </div>
 </div>
@@ -543,7 +543,7 @@ function hexToRgba(hex, alpha) {
 // Application state
 // ─────────────────────────────────────────────
 var filters = { geo: 'ALL', classification: 'CLASSIFIED', search: '', maxFunding: Infinity };
-var FUNDING_STEPS = [1e3, 5e3, 10e3, 25e3, 50e3, 100e3, 250e3, 500e3, 1e6, 5e6, 10e6, 50e6, 100e6, Infinity];
+var FUNDING_STEPS = [Infinity, 100e6, 50e6, 10e6, 5e6, 1e6, 500e3, 250e3, 100e3, 50e3, 25e3, 10e3, 5e3, 1e3];
 var sizeMode = 'funding';
 var excludedSectors = new Set();
 var currentView = 'pack';
