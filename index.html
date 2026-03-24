@@ -526,6 +526,7 @@ function fmt(v) {
 
 function safeUrl(u) {
   if (!u) return null;
+  if (!/^https?:\/\//i.test(u)) u = 'https://' + u;
   try {
     const p = new URL(u);
     return ['http:', 'https:'].includes(p.protocol) ? p.href : null;
