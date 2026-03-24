@@ -110,6 +110,33 @@ body {
 }
 .search-inline:focus { border-color: rgb(58,151,212); box-shadow: rgb(58 151 212 / 36%) 0px 0px 0px 3px; }
 .search-inline::placeholder { color: rgba(255,255,255,0.3); }
+#countrySelect {
+  background: rgba(255,255,255,0.08);
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 6px;
+  padding: 4px 10px;
+  height: 30px;
+  font-size: 13px;
+  font-weight: 500;
+  color: rgba(255,255,255,0.7);
+  cursor: pointer;
+  outline: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='rgba(255,255,255,0.5)'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 8px center;
+  padding-right: 24px;
+  min-width: 130px;
+}
+#countrySelect:hover { background-color: rgba(255,255,255,0.12); }
+#countrySelect:focus { border-color: rgb(58,151,212); box-shadow: rgb(58 151 212 / 36%) 0px 0px 0px 3px; }
+#countrySelect option {
+  background: #1a1a1a;
+  color: rgba(255,255,255,0.85);
+  padding: 6px 10px;
+}
 .funding-slider {
   -webkit-appearance: none;
   appearance: none;
@@ -416,9 +443,12 @@ body {
 <div class="filter-bar">
   <div class="filter-group">
     <label>Region:</label>
-    <button class="toggle-btn active" id="btnAll" onclick="setGeo('ALL')">All</button>
+    <button class="toggle-btn active" id="btnAll" onclick="setGeo('ALL')">Global</button>
     <button class="toggle-btn" id="btnUS" onclick="setGeo('US')">US</button>
     <button class="toggle-btn" id="btnCA" onclick="setGeo('CA')">California</button>
+    <select id="countrySelect" onchange="setGeo(this.value)">
+      <option value="" disabled selected>Country...</option>
+    </select>
   </div>
   <div class="filter-group">
     <label>Show:</label>
@@ -584,8 +614,30 @@ function setGeo(mode) {
     document.getElementById(id).classList.remove('active');
   });
   var map = { ALL: 'btnAll', US: 'btnUS', CA: 'btnCA' };
-  document.getElementById(map[mode]).classList.add('active');
+  if (map[mode]) {
+    document.getElementById(map[mode]).classList.add('active');
+    document.getElementById('countrySelect').value = '';
+  } else {
+    document.getElementById('countrySelect').value = mode;
+  }
   refresh();
+}
+
+function initCountryDropdown() {
+  var counts = {};
+  DATA.companies.forEach(function(c) {
+    var co = c.country || 'Unknown';
+    counts[co] = (counts[co] || 0) + 1;
+  });
+  var sorted = Object.keys(counts).sort(function(a, b) { return counts[b] - counts[a]; });
+  var sel = document.getElementById('countrySelect');
+  sorted.forEach(function(co) {
+    if (co === 'US' || co === 'Unknown') return;
+    var opt = document.createElement('option');
+    opt.value = 'COUNTRY:' + co;
+    opt.textContent = co + ' (' + counts[co] + ')';
+    sel.appendChild(opt);
+  });
 }
 
 function setClass(mode) {
@@ -611,6 +663,10 @@ function getFiltered() {
   return DATA.companies.filter(function(c) {
     if (filters.geo === 'CA' && c.hq_state !== 'CA') return false;
     if (filters.geo === 'US' && c.country && c.country !== 'US') return false;
+    if (filters.geo.startsWith('COUNTRY:')) {
+      var target = filters.geo.slice(8);
+      if ((c.country || '') !== target) return false;
+    }
     if (filters.classification === 'CLASSIFIED' && c.category === 'UNKNOWN') return false;
     if (filters.classification === 'FUNDED' && !(c.funding > 0)) return false;
     if (minF > 0 && (c.funding || 0) < minF) return false;
@@ -968,7 +1024,8 @@ function buildCirclePacking(filtered) {
       .on('mouseleave', function() { tooltip.style.display = 'none'; })
       .on('dblclick', function(e, d) {
         var url = d.data.status === 'DEAD' ? safeUrl(d.data.wayback_url) : safeUrl(d.data.website);
-        if (url) window.open(url, '_blank', 'noopener');
+        if (!url) url = 'https://duckduckgo.com/?q=' + encodeURIComponent(d.data.name + ' agtech');
+        window.open(url, '_blank', 'noopener');
       });
 
     // Company name labels — fit to rectangle
@@ -1098,7 +1155,8 @@ function buildCirclePacking(filtered) {
         e.stopPropagation();
         tooltip.style.display = 'none';
         var url = isDead ? safeUrl(c.wayback_url) : safeUrl(c.website);
-        if (url) window.open(url, '_blank', 'noopener');
+        if (!url) url = 'https://duckduckgo.com/?q=' + encodeURIComponent(c.name + ' agtech');
+        window.open(url, '_blank', 'noopener');
       });
   });
 
@@ -1258,7 +1316,8 @@ function renderDetailView(companies, category) {
     .on('mouseleave', function() { tooltip.style.display = 'none'; })
     .on('click', function(e, d) {
       var url = d.data.status === 'DEAD' ? safeUrl(d.data.wayback_url) : safeUrl(d.data.website);
-      if (url) window.open(url, '_blank', 'noopener');
+      if (!url) url = 'https://duckduckgo.com/?q=' + encodeURIComponent(d.data.name + ' agtech');
+      window.open(url, '_blank', 'noopener');
     });
 
   leaves.each(function(d) {
@@ -1450,6 +1509,7 @@ window.addEventListener('resize', function() {
 // ─────────────────────────────────────────────
 // Boot
 // ─────────────────────────────────────────────
+initCountryDropdown();
 refresh();
 </script>
 </body>
