@@ -1,4 +1,4 @@
-# Research Map — Crunchbase Data Access
+# Research Map: Crunchbase Data Access
 
 **Target:** crunchbase.com | **Type:** web | **Date:** 2026-03-24
 
@@ -8,7 +8,7 @@
 - Company profile pages return **403** to non-browser requests
 - AI crawlers explicitly blocked in robots.txt (Claude, GPTBot, etc.)
 - Sitemap index returns 403
-- Basic API **discontinued** — no new API keys issued
+- Basic API **discontinued**: no new API keys issued
 
 ### Crunchbase Basic API (deprecated)
 - 3 endpoints existed: Organization Search, Entity Lookup, Autocomplete
@@ -19,7 +19,7 @@
 ### Google Search Snippet Extraction
 - `site:crunchbase.com "[company name]"` returns profile links
 - Snippets show: round count, latest round date, investor count, short description
-- **Funding amounts are OBFUSCATED** — shown as "obfuscated amount" without Pro subscription
+- **Funding amounts are OBFUSCATED**: shown as "obfuscated amount" without Pro subscription
 - Useful for: confirming a company exists on Crunchbase, getting round count
 
 ### What DOES Work (current approach)
@@ -48,10 +48,10 @@ Our WebSearch queries like `"[company name]" raised funding series` are actually
 - Could automate: navigate to each company page, extract funding from DOM
 - **Action:** Build a browser-use loop that visits each Crunchbase page
 
-### 4. News article approach (CURRENT — already working well)
+### 4. News article approach (CURRENT: already working well)
 - `"[company name]" "raised" OR "funding" OR "series"` via WebSearch
 - AgFunder News, TechCrunch, press releases have unobfuscated amounts
-- This is our overnight cron approach — already found $400M+ across researched companies
+- This is our overnight cron approach: already found $400M+ across researched companies
 
 ### 5. Tracxn free snippets
 - Search results from `site:tracxn.com "[company name]"` sometimes show funding in snippets

@@ -1,4 +1,4 @@
-# Research Map — NIFA (2026-03-23)
+# Research Map: NIFA (2026-03-23)
 
 ## Key Finding: `perPage` is the correct parameter (not `size`)
 
@@ -38,7 +38,7 @@ POST https://api.usaspending.gov/api/v2/search/spending_by_award/
 - 322 grants to ~150 private CA companies
 
 ## Parameters
-- `perPage` (int) — items per page (1000 works)
-- `page` (int) — 1-indexed
-- `sortColumn` (int) — column index
-- `columnFilters` (JSON string) — object format: `{"State Name":"California"}`
+- `perPage` (int): items per page (1000 works)
+- `page` (int): 1-indexed
+- `sortColumn` (int): column index
+- `columnFilters` (JSON string): object format: `{"State Name":"California"}`

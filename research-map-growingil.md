@@ -1,4 +1,4 @@
-# Research Map — GrowingIL AgriFood Tech Map 2025
+# Research Map: GrowingIL AgriFood Tech Map 2025
 
 **Target:** https://www.growingil.org/agrifoodtechmap2025
 **Date:** 2026-03-24
@@ -8,22 +8,22 @@
 
 ## Executive Summary
 
-The GrowingIL AgriFood Tech Map 2025 is a **Wix Thunderbolt** site co-produced with Startup Nation Central (SNC). The visual map showcases 150 curated companies selected from SNC's Finder database of 750+ agrifood startups. The map page itself is a static visual (PDF embedded as image) — **company data does not live in a GrowingIL Wix database**. The full 750+ company dataset lives exclusively in **SNC Finder** (finder.startupnationcentral.org), which is Cloudflare-protected and blocks all non-browser access.
+The GrowingIL AgriFood Tech Map 2025 is a **Wix Thunderbolt** site co-produced with Startup Nation Central (SNC). The visual map showcases 150 curated companies selected from SNC's Finder database of 750+ agrifood startups. The map page itself is a static visual (PDF embedded as image): **company data does not live in a GrowingIL Wix database**. The full 750+ company dataset lives exclusively in **SNC Finder** (finder.startupnationcentral.org), which is Cloudflare-protected and blocks all non-browser access.
 
-The most actionable extraction path is **SNC Finder via browser automation** (Playwright/browser-use with a real Chrome profile). A secondary path is the **GrowingIL Wix Data API** which exposes 100 investor records with full structured data — useful for building the investor side of the dataset.
+The most actionable extraction path is **SNC Finder via browser automation** (Playwright/browser-use with a real Chrome profile). A secondary path is the **GrowingIL Wix Data API** which exposes 100 investor records with full structured data: useful for building the investor side of the dataset.
 
 ---
 
 ## Findings by Source
 
-### 1. GrowingIL.org — Tech Stack
+### 1. GrowingIL.org: Tech Stack
 
 - **Platform:** Wix Thunderbolt (proprietary Wix SSR framework, not Next.js/React/WordPress)
 - **metaSiteId:** `918183db-2639-48e3-9c6c-d5591b717cb0`
-- **Cloudflare:** No — Wix's own CDN (parastorage.com, wixstatic.com)
+- **Cloudflare:** No: Wix's own CDN (parastorage.com, wixstatic.com)
 - **Bot blocking:** None beyond Wix's standard auth
 
-### 2. GrowingIL.org — robots.txt
+### 2. GrowingIL.org: robots.txt
 
 ```
 Allow: /
@@ -33,17 +33,17 @@ Sitemap: https://www.growingil.org/sitemap.xml
 
 No disallowed paths of interest. PetalBot and AhrefsBot face crawl delays.
 
-### 3. GrowingIL.org — Sitemap Structure
+### 3. GrowingIL.org: Sitemap Structure
 
 - **`/sitemap.xml`** → index pointing to two sub-sitemaps
 - **`/dynamic-investors-sitemap.xml`** → 112 individual investor profile URLs at `/investors/{slug}`
 - **`/pages-sitemap.xml`** → 30 static pages including:
-  - `/agrifoodtechmap2025` — the 2025 map
-  - `/2023israeliagtechstartupmap` — 2023 map (title: "2023 Agtech Map | GrowingIL & SNC")
-  - `/startup-database` — a startup database page
-  - `/investors-map` — investor map page
+  - `/agrifoodtechmap2025`: the 2025 map
+  - `/2023israeliagtechstartupmap`: 2023 map (title: "2023 Agtech Map | GrowingIL & SNC")
+  - `/startup-database`: a startup database page
+  - `/investors-map`: investor map page
 
-### 4. GrowingIL.org — Wix Data API (KEY FINDING)
+### 4. GrowingIL.org: Wix Data API (KEY FINDING)
 
 The Wix cloud-data REST API is **publicly accessible** using the site's own visitor instance token.
 
@@ -57,7 +57,7 @@ Extract `apps["22bef345-3c5b-4c18-b782-74d4085112ff"]["instance"]`
 
 **Headers required:**
 ```
-Authorization: <instance_token>
+Authorization: ***
 wix-instance: <instance_token>
 Content-Type: application/json
 ```
@@ -96,22 +96,22 @@ Content-Type: application/json
 }
 ```
 
-### 5. GrowingIL.org — PDF Downloads (PUBLIC)
+### 5. GrowingIL.org: PDF Downloads (PUBLIC)
 
 Two PDFs are directly downloadable without authentication:
 
 | File | URL | Size | Contents |
 |------|-----|------|----------|
-| **Agrifood-Tech-2025-Landscape-Map-V2.pdf** | `https://www.growingil.org/_files/ugd/0e38a4_dd262b1d908d41679e18e1fd88d7a28a.pdf` | 1.6 MB | Visual landscape map — company names embedded as image text (not machine-readable) |
+| **Agrifood-Tech-2025-Landscape-Map-V2.pdf** | `https://www.growingil.org/_files/ugd/0e38a4_dd262b1d908d41679e18e1fd88d7a28a.pdf` | 1.6 MB | Visual landscape map: company names embedded as image text (not machine-readable) |
 | **2023 AgTech Map** | `https://918183db-2639-48e3-9c6c-d5591b717cb0.usrfiles.com/ugd/9347c4_743361b53a404bb495d79ba36460995f.pdf` | 1.4 MB | 2023 version of map |
 
 **Caveat:** Both PDFs contain company names as graphical/vector text, not selectable text. pdftotext extracts only 13 lines (category headers). An OCR pass (tesseract, AWS Textract, GPT-4V) could potentially extract 150 company names from the 2025 map.
 
-### 6. Startup Nation Central — Finder Platform
+### 6. Startup Nation Central: Finder Platform
 
 **URL:** https://finder.startupnationcentral.org
 **Tech stack:** Next.js (confirmed by Cloudflare headers and URL patterns)
-**Cloudflare:** YES — `Cf-Mitigated: challenge` (managed JS challenge)
+**Cloudflare:** YES: `Cf-Mitigated: challenge` (managed JS challenge)
 **All direct fetches:** 403 Forbidden
 **All API probes:** 403 Forbidden (`/api/v1/companies`, `/api/search`, `/graphql`, etc.)
 
@@ -130,7 +130,7 @@ https://finder.startupnationcentral.org/reports/2025-agrifood-tech-map
 
 **No public API found.** No Algolia keys, no GraphQL, no REST JSON endpoints accessible without a real browser session.
 
-### 7. Startup Nation Central — WordPress (Main Site)
+### 7. Startup Nation Central: WordPress (Main Site)
 
 **URL:** https://startupnationcentral.org
 **Platform:** WordPress
@@ -143,7 +143,7 @@ https://finder.startupnationcentral.org/reports/2025-agrifood-tech-map
 | `media-article` | `/wp-json/wp/v2/media-article` | |
 | Standard WP types | posts, pages, media, etc. | |
 
-The main WordPress site does not contain the company database — it's a marketing/news site. Company data is in Finder only.
+The main WordPress site does not contain the company database: it's a marketing/news site. Company data is in Finder only.
 
 **Notable:** The agritech page (`/agritech/`) contains a Finder watchlist link:
 ```
@@ -155,7 +155,7 @@ This watchlist likely contains the curated ~150 agrifood companies from the 2025
 
 ## Extraction Method Recommendations (Ranked)
 
-### Method 1: Browser Automation on SNC Finder (PRIMARY — 750+ companies)
+### Method 1: Browser Automation on SNC Finder (PRIMARY: 750+ companies)
 
 **Why:** This is where the full 750-company database lives.
 **How:** Playwright or browser-use with a real Chrome profile to bypass Cloudflare.
@@ -167,7 +167,7 @@ This watchlist likely contains the curated ~150 agrifood companies from the 2025
 # https://finder.startupnationcentral.org/startups/search?alltags=foodtech
 ```
 
-The search pages use `__NEXT_DATA__` for server-side rendering — after Cloudflare passes, the JSON in `<script id="__NEXT_DATA__">` should contain the full company list for that page. Scroll/paginate to get all records.
+The search pages use `__NEXT_DATA__` for server-side rendering: after Cloudflare passes, the JSON in `<script id="__NEXT_DATA__">` should contain the full company list for that page. Scroll/paginate to get all records.
 
 **Sector IDs** (from search URL patterns found):
 - `agxzfmlsbGlzdHNpdGVyJAsSF0Jhc2VDbGFzc2lmaWNhdGlvbk1vZGVsGICA4Kv1s8ELDA` = Precision Ag
@@ -175,7 +175,7 @@ The search pages use `__NEXT_DATA__` for server-side rendering — after Cloudfl
 
 **Estimated effort:** 2-4 hours with browser-use automation.
 
-### Method 2: GrowingIL Wix Data API (IMMEDIATE — 100 investors)
+### Method 2: GrowingIL Wix Data API (IMMEDIATE: 100 investors)
 
 **Why:** Already confirmed working, no browser needed, structured JSON.
 **Status:** READY TO SCRAPE

@@ -1,6 +1,6 @@
-# Research Map — Wellfound (2026-03-23)
+# Research Map: Wellfound (2026-03-23)
 
-## Summary: Low priority — only ~11 CA agriculture companies
+## Summary: Low priority: only ~11 CA agriculture companies
 
 No public API. Data embedded in `__NEXT_DATA__` JSON in page source.
 Cloudflare Turnstile blocks headless browsers. Page 2+ may 403.

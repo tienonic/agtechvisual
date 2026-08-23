@@ -1,4 +1,4 @@
-# Research Map — Thrive Agrifood (2026-03-23)
+# Research Map: Thrive Agrifood (2026-03-23)
 
 ## Key Finding: WordPress REST API is FULLY OPEN
 

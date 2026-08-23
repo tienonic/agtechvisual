@@ -1,7 +1,7 @@
 [project]
 name = "agtech-ca-scraper"
 version = "0.1.0"
-description = "Comprehensive database of California agriculture technology companies (2022-2026)"
+description = "Builds a sourced directory of California agricultural technology companies"
 requires-python = ">=3.11"
 dependencies = [
     "requests",
