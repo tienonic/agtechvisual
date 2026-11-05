@@ -1,6 +1,8 @@
 # Carrot Core agricultural technology map
 
-Carrot Core explores the saved agricultural technology collection at [carrotcore.com](https://www.carrotcore.com/). Home selects datasets; Graph, Treemap, City and Library share the same records and selection. The original analytical reader remains at `analytical.html`, with its geography, classification, funding and size controls.
+Open the [checked Carrot Core review site](https://carrotcore-review.vercel.app/) to use the rebuilt explorer. Home selects datasets; Graph, Treemap, City and Library share the same records and selection. The original analytical reader remains at `analytical.html`, with its geography, classification, funding and size controls.
+
+On November 5, 2026, the existing [carrotcore.com](https://www.carrotcore.com/) Pages deployment still reported `building` after accepting the static artifact. Its domain and HTTPS settings remain on GitHub Pages. Use the review site while that provider step is pending; inspect the current Pages build before calling the custom-domain update complete.
 
 Home offers two real public datasets. The agricultural technology snapshot contains 2,695 company records from the existing reader. The AI business map contains 5,715 source records plus 8 named relationship endpoints, with 407 saved connections. Select either or both. Agricultural technology is selected by default. Each dataset retains its own record identities and connections; selecting both creates no cross-dataset edges.
 
