@@ -280,7 +280,10 @@ def cmd_refine(args):
 
 
 def cmd_dashboard(args):
-    """Generate interactive treemap dashboard HTML."""
+    """Update the public snapshot and both website readers from the database."""
+    if not DB_PATH.is_file():
+        print("The collector database is missing. Use python scripts/build_site.py to rebuild the saved public snapshot.")
+        sys.exit(1)
     db = Database(DB_PATH)
 
     from src.dedup import domain_from_url

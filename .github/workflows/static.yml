@@ -25,10 +25,18 @@ jobs:
         uses: actions/checkout@v4
       - name: Setup Pages
         uses: actions/configure-pages@v5
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Check public data and build
+        run: python -m unittest tests.test_site_builder
+      - name: Build public site
+        run: python scripts/build_site.py
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: '.'
+          path: 'public-site'
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4

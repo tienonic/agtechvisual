@@ -6,3 +6,4 @@ __pycache__/
 *.db
 sbir_ca_cache.csv
 .pytest_cache/
+public-site/

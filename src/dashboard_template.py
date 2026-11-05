@@ -1516,10 +1516,42 @@ refresh();
 </html>"""
 
 
-def render_dashboard(data: dict, output_path: Path):
+def render_analytical_dashboard(data: dict, output_path: Path):
     """Write the dashboard HTML with embedded data."""
-    data_json = json.dumps(data, ensure_ascii=False)
+    data_json = json.dumps(data, ensure_ascii=False).replace("</", "<\\/")
     desc_json = json.dumps(SECTOR_DESCRIPTIONS, ensure_ascii=False)
     html = TEMPLATE.replace("__DATA_PLACEHOLDER__", data_json)
     html = html.replace("__SECTOR_DESC__", desc_json)
     output_path.write_text(html, encoding="utf-8")
+
+
+def render_dashboard(data: dict, output_path: Path):
+    """Save the public snapshot and rebuild both website readers."""
+    import hashlib
+    from src.site_builder import build_site, validate_snapshot
+
+    validate_snapshot(data)
+    root = output_path.resolve().parent
+    snapshot = root / "data/public-dashboard.json"
+    snapshot.parent.mkdir(parents=True, exist_ok=True)
+    content = (json.dumps(data, ensure_ascii=False, indent=2, allow_nan=False) + "\n").encode()
+    snapshot.write_bytes(content)
+    provenance_path = root / "data/public-provenance.json"
+    provenance = json.loads(provenance_path.read_text()) if provenance_path.exists() else {"schemaVersion": 1}
+    if "sourceCommit" in provenance:
+        provenance["initialExtraction"] = {
+            "sourceCommit": provenance.pop("sourceCommit"),
+            "originalReaderSha256": provenance.pop("originalReaderSha256"),
+            "sourceUrl": provenance["sourceUrl"],
+        }
+    provenance.update({
+        "sourceUrl": "https://github.com/tienonic/agtechvisual",
+        "snapshotSha256": hashlib.sha256(content).hexdigest(),
+        "recordCount": len(data["companies"]),
+        "recordObservationDate": None,
+        "currentSnapshotOrigin": "Collector database dashboard export",
+        "notes": ["The collector dashboard export omits record observation dates and database IDs."],
+    })
+    provenance_path.write_text(json.dumps(provenance, indent=2) + "\n", encoding="utf-8")
+    render_analytical_dashboard(data, root / "analytical.html")
+    build_site(root, root / "public-site")
