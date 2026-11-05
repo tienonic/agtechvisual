@@ -1,0 +1,14 @@
+{
+  "schemaVersion": 1,
+  "sourceUrl": "https://github.com/tienonic/agtechvisual/blob/8ca935199e37883152388bc68b58599574588997/index.html",
+  "sourceCommit": "8ca935199e37883152388bc68b58599574588997",
+  "originalReaderSha256": "074c3ed5227640f7bca894930a1a4abae11225c4708166eb7743407d02ad0676",
+  "snapshotSha256": "cfa284bf3f653bdd6a3a96ed3e7adbd1b0aa9b6e3089f4ba5ebad3db75acdbf9",
+  "recordCount": 2695,
+  "recordObservationDate": null,
+  "notes": [
+    "Extracted without changing record values from the existing public reader.",
+    "Record observation dates and database IDs were not included in that reader.",
+    "Source text and encoding are preserved, including incomplete descriptions and classification errors."
+  ]
+}

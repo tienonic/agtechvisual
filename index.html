@@ -1,0 +1,163 @@
+<!doctype html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="color-scheme" content="light dark">
+  <title>Carrot Core</title>
+
+  <script>(function(){try{var t=localStorage.getItem('explorer-theme');if(t!=='light'&&t!=='dark')t=window.matchMedia&&matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';document.documentElement.setAttribute('data-theme',t)}catch(e){}})();</script>
+  <link rel="stylesheet" href="explorer-assets/explorer.css">
+  <script id="explorer-config" type="application/json">{"title":"Carrot Core","manifestUrl":"explorer-data/manifest.json","defaultDatasets":["agtech"],"legacyUrl":"analytical.html","assetBase":"explorer-assets/","fontUrl":"explorer-assets/vendor/source-serif-4-latin.woff2"}</script>
+  <script defer src="explorer-assets/explorer.js"></script>
+<script>window.EXPLORER_CONFIG=JSON.parse(document.getElementById("explorer-config").textContent);</script></head>
+<body data-view="home">
+  <a class="skip-link" href="#main">Skip to content</a>
+  <header class="topnav">
+    <a class="brand" href="#/" data-nav="home">
+      <svg class="brand-mark" viewBox="0 0 24 24" aria-hidden="true"><rect x="2" y="3" width="11" height="18" fill="currentColor"/><rect x="14" y="3" width="8" height="10" class="mark-a"/><rect x="14" y="14" width="8" height="7" class="mark-b"/></svg>
+      <span id="brand-title" class="brand-title">Carrot Core</span>
+    </a>
+    <nav class="navlinks" aria-label="Primary">
+      <a href="#/" data-nav="home">Home</a>
+      <a href="#/graph" data-nav="graph">Graph</a>
+      <a href="#/library" data-nav="library">Library</a>
+    </nav>
+    <div class="topnav-end">
+      <a id="legacy-link" class="navlink-quiet" href="#" hidden>Previous map</a>
+      <button id="theme-toggle" class="icon-button" type="button" aria-label="Switch to dark theme" title="Light or dark">
+        <svg class="icon-moon" viewBox="0 0 16 16" aria-hidden="true"><path d="M13.5 9.6A5.75 5.75 0 1 1 6.4 2.5a4.6 4.6 0 0 0 7.1 7.1z"/></svg>
+        <svg class="icon-sun" viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="3"/><path d="M8 1v1.6M8 13.4V15M1 8h1.6M13.4 8H15M3 3l1.1 1.1M11.9 11.9 13 13M3 13l1.1-1.1M11.9 4.1 13 3"/></svg>
+      </button>
+    </div>
+  </header>
+
+  <main id="main">
+    <section id="view-home" class="view view-home" aria-labelledby="home-title">
+      <div class="container">
+        <h1 id="home-title" class="display">Carrot Core</h1>
+        <p><a href="methods.html">Sources and methods</a> · <a href="analytical.html">Original analytical reader</a></p><p class="lede">Choose one or more datasets. The graph, treemap and city share one layout, so each record keeps its place when you switch views. Each dataset loads only when you select it.</p>
+        <p id="home-status" class="status" role="status" hidden></p>
+        <fieldset class="dataset-picker">
+          <legend>Datasets</legend>
+          <div id="dataset-list" class="dataset-list"><p class="muted">Loading the dataset list…</p></div>
+        </fieldset>
+        <p id="home-summary" class="meta" aria-live="polite"></p>
+        <div class="actions">
+          <button id="home-open-graph" class="button button-primary" type="button" disabled>Open graph <span class="arrow" aria-hidden="true"></span></button>
+          <button id="home-open-library" class="button" type="button" disabled>Open library</button>
+        </div>
+      </div>
+    </section>
+
+    <section id="view-graph" class="view view-graph" aria-labelledby="graph-title" hidden>
+      <header class="graph-head">
+        <div class="title-row">
+          <h1 id="graph-title" class="display display-sm">Graph</h1>
+          <details class="help">
+            <summary aria-label="How to read this view">?</summary>
+            <div class="help-panel">
+              <p>Each cell is one record, and every record gets the same area. A larger block holds more records; size does not measure value. Blocks follow each dataset's groups and subgroups.</p>
+              <p>Lines are connections recorded in the source data. Solid lines are observed; dashed lines are inferred comparisons. Connections never join two datasets.</p>
+              <p>Drag to pan, scroll or pinch to zoom, and click a record to select it. Click a group title to zoom to it. In the city, drag to orbit and right-drag or Shift-drag to pan.</p>
+              <p>Keys: arrows move between records, Shift and an arrow pans or orbits, Enter opens the record in the library, Escape clears the selection, / searches, and 1, 2 and 3 switch views.</p>
+            </div>
+          </details>
+          <p id="graph-counts" class="meta counts" aria-live="polite"></p>
+        </div>
+        <div class="toolbar">
+          <div class="segmented" role="group" aria-label="View">
+            <button type="button" data-mode="graph" aria-pressed="false">Graph</button>
+            <button type="button" data-mode="treemap" aria-pressed="true">Treemap</button>
+            <button type="button" data-mode="city" aria-pressed="false">City</button>
+          </div>
+          <form class="search" role="search">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></svg>
+            <input id="graph-search" type="search" placeholder="Search names, topics, authors, references" aria-label="Search records" autocomplete="off" spellcheck="false" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="search-results">
+            <kbd aria-hidden="true">/</kbd>
+            <div id="search-results" class="search-results" role="listbox" aria-label="Matching records" hidden></div>
+          </form>
+          <div class="filters-wrap">
+            <button id="filters-open" class="button" type="button" aria-haspopup="dialog" aria-expanded="false" aria-controls="filters">Filters<span id="filters-badge"></span></button>
+            <div id="filters" class="popover" role="dialog" aria-labelledby="filters-title" hidden>
+              <div class="popover-head">
+                <h2 id="filters-title">Filters and display</h2>
+                <button id="filters-close" class="icon-button" type="button" aria-label="Close filters">×</button>
+              </div>
+              <div class="popover-body">
+                <fieldset><legend>Colour</legend>
+                  <label class="check"><input type="radio" name="colorBy" value="kind" checked><span>Record kind</span></label>
+                  <label class="check"><input type="radio" name="colorBy" value="dataset"><span>Dataset</span></label>
+                </fieldset>
+                <fieldset><legend>City height</legend>
+                  <label class="check"><input type="radio" name="height" value="connections" checked><span>Connections per record</span></label>
+                  <label class="check"><input type="radio" name="height" value="flat"><span>Flat</span></label>
+                </fieldset>
+                <fieldset><legend>Connection evidence</legend><div id="filter-evidence" class="check-list"></div></fieldset>
+                <fieldset><legend>Connection types</legend><div id="filter-types" class="check-list scroll"></div></fieldset>
+                <fieldset><legend>Record kinds</legend><div id="filter-kinds" class="check-list scroll"></div></fieldset>
+              </div>
+              <div class="popover-foot"><button id="filters-reset" class="button" type="button">Reset</button></div>
+            </div>
+          </div>
+          <div id="dataset-chips" class="chips" role="group" aria-label="Datasets shown" hidden></div>
+        </div>
+        <p id="graph-warning" class="warning" hidden></p>
+        <nav class="trail" aria-label="Zoom level"><ol id="trail"></ol></nav>
+      </header>
+      <div id="graph-shell" class="graph-shell">
+        <div id="stage" class="stage">
+          <canvas id="canvas-2d" tabindex="0" aria-label="Record map. Arrow keys move between records, Enter opens the selected record, Escape clears the selection." aria-describedby="live"></canvas>
+          <canvas id="canvas-3d" tabindex="0" aria-label="3D city of records. Arrow keys move between records, Shift and an arrow orbits, plus and minus zoom." hidden></canvas>
+          <div id="city-labels" class="city-labels" aria-hidden="true" hidden></div>
+          <div id="hover" class="hover" aria-hidden="true" hidden></div>
+          <div id="stage-message" class="stage-message" role="status" hidden></div>
+          <details id="legend" class="legend" open>
+            <summary>Legend</summary>
+            <div id="legend-body" class="legend-body"></div>
+          </details>
+          <div class="zoom" role="group" aria-label="Zoom">
+            <button id="zoom-out" type="button" aria-label="Zoom out">−</button>
+            <button id="zoom-fit" type="button">Fit</button>
+            <button id="zoom-in" type="button" aria-label="Zoom in">+</button>
+          </div>
+        </div>
+        <aside id="inspector" class="inspector" aria-label="Selected record" hidden>
+          <div id="inspector-body" class="record"></div>
+        </aside>
+      </div>
+    </section>
+
+    <section id="view-library" class="view view-library" aria-labelledby="library-title" hidden>
+      <header class="library-head">
+        <h1 id="library-title" class="display display-sm">Library</h1>
+        <div class="toolbar">
+          <form class="search search-wide" role="search">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></svg>
+            <input id="library-search" type="search" placeholder="Search names, topics, authors, references" aria-label="Search the library" autocomplete="off" spellcheck="false">
+          </form>
+          <label class="select"><span class="visually-hidden">Dataset</span><select id="library-dataset"></select></label>
+          <label class="select"><span class="visually-hidden">Kind</span><select id="library-kind"></select></label>
+          <label class="select"><span class="select-label">Sort</span><select id="library-sort">
+            <option value="map">Map order</option>
+            <option value="name">Name</option>
+            <option value="connections">Most connections</option>
+            <option value="date">Newest date</option>
+          </select></label>
+          <button id="library-clear" class="button button-quiet" type="button" hidden>Clear search and filters</button>
+        </div>
+        <p id="library-counts" class="meta" aria-live="polite"></p>
+      </header>
+      <div class="library-shell">
+        <div class="library-list-wrap">
+          <div id="library-list" class="library-list" role="listbox" tabindex="0" aria-label="Records"><div id="library-spacer" class="library-spacer"></div></div>
+          <div id="library-empty" class="library-empty" hidden><p id="library-empty-text"></p></div>
+        </div>
+        <section id="library-detail" class="library-detail record" aria-label="Record details"></section>
+      </div>
+    </section>
+    <p id="live" class="visually-hidden" aria-live="polite"></p>
+  </main>
+  <noscript><p class="noscript">This explorer needs JavaScript.</p></noscript>
+</body>
+</html>
