@@ -14,7 +14,17 @@ Python 3.11 or later is the only build requirement. The ignored collector databa
 2. Run `python -m http.server 8080 --directory public-site`, then open `http://localhost:8080/`.
 3. Run `python -m unittest tests.test_site_builder` to check record preservation, duplicate IDs, evidence endpoints, deterministic output, shared assets and the public file boundary.
 
-GitHub Pages runs that build on `main` and uploads only `public-site/`. The existing Pages deployment and `CNAME` remain in place. The build rejects unexpected files and local paths. The root `index.html` also opens the generated map when serving the repository after a build.
+The retained GitHub Actions workflow builds on `main` and uploads only `public-site/` when Actions is available. The build rejects unexpected files and local paths. The root `index.html` also opens the generated map when serving the repository after a build.
+
+### Publish when GitHub Actions is unavailable
+
+On November 5, 2026, GitHub refused workflow dispatch with HTTP 422 because Actions is disabled for this account. The existing Actions workflow remains available for recovery. The fallback publishes the same validated build to the `gh-pages` artifact branch, with `.nojekyll` and the canonical `www.carrotcore.com` domain.
+
+1. Run `python scripts/build_site.py`.
+2. Run `python scripts/publish_site.py --check` to verify the exact receipt allowlist, file hashes and domain without changing Git or the remote.
+3. Run `python scripts/publish_site.py --publish` to publish only those verified files. It uses a temporary repository and a normal fast-forward push, retaining any existing `gh-pages` history. It leaves the source branch, worktree and index alone.
+
+The publisher does not change Pages, account or domain settings. The deployment owner must configure the existing Pages site to serve the `gh-pages` branch root. GitHub documents branch publication with `.nojekyll` in its [Pages legacy worker update](https://github.blog/changelog/2024-07-08-pages-legacy-worker-sunset/).
 
 `public-site/build-receipt.json` records the snapshot hash, shared asset hashes, record count and exact public files. The initial snapshot came from the existing public `index.html` at commit `8ca935199e37883152388bc68b58599574588997`; its original HTML is preserved in `analytical.html`. The source payload and provenance are in `data/public-dashboard.json` and `data/public-provenance.json`.
 
