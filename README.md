@@ -1,8 +1,8 @@
 # Carrot Core agricultural technology map
 
-Open the [checked Carrot Core review site](https://carrotcore-review.vercel.app/) to use the rebuilt explorer. Home selects datasets; Graph, Treemap, City and Library share the same records and selection. The original analytical reader remains at `analytical.html`, with its geography, classification, funding and size controls.
+Open [Carrot Core](https://www.carrotcore.com/) to use the research explorer. Home selects datasets; Graph, Treemap, City and Library share the same records and selection. The original analytical reader remains at `analytical.html`, with its geography, classification, funding and size controls. The [review site](https://carrotcore-review.vercel.app/) is a secondary mirror (HTTP 200 checked November 10, 2026).
 
-On November 5, 2026, the existing [carrotcore.com](https://www.carrotcore.com/) Pages deployment still reported `building` after accepting the static artifact. Its domain and HTTPS settings remain on GitHub Pages. Use the review site while that provider step is pending; inspect the current Pages build before calling the custom-domain update complete.
+As of November 10, 2026, https://www.carrotcore.com is live from the `gh-pages` branch. Repository Actions are switched off because GitHub has Actions disabled for the account. Use `python scripts/publish_site.py --publish` until Actions is restored.
 
 Home offers two real public datasets. The agricultural technology snapshot contains 2,695 company records from the existing reader. The AI business map contains 5,715 source records plus 8 named relationship endpoints, with 407 saved connections. Select either or both. Agricultural technology is selected by default. Each dataset retains its own record identities and connections; selecting both creates no cross-dataset edges.
 
@@ -14,19 +14,19 @@ Python 3.11 or later is the only build requirement. The ignored collector databa
 
 1. Run `python scripts/build_site.py` to build the explicit public export in `public-site/`.
 2. Run `python -m http.server 8080 --directory public-site`, then open `http://localhost:8080/`.
-3. Run `python -m unittest tests.test_site_builder` to check record preservation, duplicate IDs, evidence endpoints, deterministic output, shared assets and the public file boundary.
+3. Run `python -m unittest tests.test_site_builder tests.test_publish_site` to check record preservation, duplicate IDs, evidence endpoints, deterministic output, shared assets and the public file boundary.
 
 The retained GitHub Actions workflow builds on `main` and uploads only `public-site/` when Actions is available. The build rejects unexpected files and local paths. The root `index.html` also opens the generated map when serving the repository after a build.
 
 ### Publish when GitHub Actions is unavailable
 
-On November 5, 2026, GitHub refused workflow dispatch with HTTP 422 because Actions is disabled for this account. The existing Actions workflow remains available for recovery. The fallback publishes the same validated build to the `gh-pages` artifact branch, with `.nojekyll` and the canonical `www.carrotcore.com` domain.
+GitHub has Actions disabled for this account, so repository Actions are switched off. The retained workflow remains available for recovery. The current publish route publishes the same validated build to the `gh-pages` artifact branch, with `.nojekyll` and the canonical `www.carrotcore.com` domain.
 
 1. Run `python scripts/build_site.py`.
 2. Run `python scripts/publish_site.py --check` to verify the exact receipt allowlist, file hashes and domain without changing Git or the remote.
 3. Run `python scripts/publish_site.py --publish` to publish only those verified files. It uses a temporary repository and a normal fast-forward push, retaining any existing `gh-pages` history. It leaves the source branch, worktree and index alone.
 
-The publisher does not change Pages, account or domain settings. The deployment owner must configure the existing Pages site to serve the `gh-pages` branch root. GitHub documents branch publication with `.nojekyll` in its [Pages legacy worker update](https://github.blog/changelog/2024-07-08-pages-legacy-worker-sunset/).
+The publisher does not change Pages, account or domain settings. The existing Pages site serves the `gh-pages` branch root. GitHub documents branch publication with `.nojekyll` in its [Pages legacy worker update](https://github.blog/changelog/2024-07-08-pages-legacy-worker-sunset/).
 
 `public-site/build-receipt.json` records the snapshot hash, shared asset hashes, record count and exact public files. The initial snapshot came from the existing public `index.html` at commit `8ca935199e37883152388bc68b58599574588997`; its original HTML is preserved in `analytical.html`. The source payload and provenance are in `data/public-dashboard.json` and `data/public-provenance.json`.
 
@@ -35,6 +35,14 @@ The publisher does not change Pages, account or domain settings. The deployment 
 Continue using the existing collectors and database. `agtech dashboard` saves the same public dashboard fields, regenerates the analytical reader, and rebuilds the explorer through `src/site_builder.py`. A website-only build uses the last saved public snapshot. Collection and enrichment are separate operations; building the website does not refresh observations.
 
 The adapter assigns a stable hash of the exact source name plus a duplicate ordinal. It preserves repeated names and every original field in lazy evidence shards. Renaming a source record changes its ID; ordering among exact repeated names follows source order. The adapter never merges records into verified entities.
+
+## Read the map
+
+Each record keeps equal area. Agricultural technology uses `view.cityHeight` to show saved funding in USD on a log scale: 473 records with positive saved amounts rise as towers; the others stay at the base. Zero means no positive amount was saved, not no funding. Funding is the sum of saved rounds, not valuation; rounds and total-raised estimates can overlap.
+
+`view.color` maps saved website observations to Live (teal), Not recorded (gray) and Dead (ochre) in Graph, Treemap and City. These observations do not describe current company operating status. The legend shows counts and the height measure. `view.groupsLast` puts Unclassified after the named categories without dropping records.
+
+The AI dataset keeps its record-kind colors and connection-count heights, including when both datasets are loaded. Heights from different measures are not comparable. Filters can switch to dataset colors or flat heights. The shared explorer README documents the optional data contract; datasets that omit it retain the existing behavior.
 
 ## Refresh the shared interface
 

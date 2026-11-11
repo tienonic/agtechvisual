@@ -135,7 +135,7 @@ void main() { o = v_c; }`;
     let linkVerts = 0;
     let theme = { bg: [0.95, 0.95, 0.93], surface: [1, 1, 1], line: [0.88, 0.88, 0.85], edge: [[0.18, 0.31, 0.6], [0.76, 0.38, 0.1], [0.55, 0.54, 0.52]] };
     let w = 0, h = 0, dpr = 1, raf = 0, lost = false, anim = 0;
-    const cam = { tx: 600, tz: 400, yaw: -0.45, pitch: 0.82, dist: 1500 };
+    const cam = { ty: 0, tx: 600, tz: 400, yaw: -0.45, pitch: 0.82, dist: 1500 };
     const proj = new Float32Array(16), view = new Float32Array(16), vp = new Float32Array(16);
     let eye = [0, 0, 0], camBasis = null;
     const samples = [];
@@ -245,8 +245,8 @@ void main() { o = v_c; }`;
     // ---- camera
     function updateCamera() {
       const cp = Math.cos(cam.pitch), sp = Math.sin(cam.pitch);
-      eye = [cam.tx + cam.dist * cp * Math.sin(cam.yaw), cam.dist * sp, cam.tz + cam.dist * cp * Math.cos(cam.yaw)];
-      camBasis = basis(eye, [cam.tx, 0, cam.tz]);
+      eye = [cam.tx + cam.dist * cp * Math.sin(cam.yaw), cam.ty + cam.dist * sp, cam.tz + cam.dist * cp * Math.cos(cam.yaw)];
+      camBasis = basis(eye, [cam.tx, cam.ty, cam.tz]);
       const diag = scene ? Math.hypot(scene.W, scene.H) : 1500;
       perspective(proj, FOV, w / Math.max(h, 1), Math.max(0.5, cam.dist * 0.01), cam.dist * 2 + diag * 2 + 600);
       lookAt(view, eye, camBasis);
@@ -270,6 +270,31 @@ void main() { o = v_c; }`;
     }
     function fitRect(x, y, rw, rh, animate) {
       const aspect = w / Math.max(h, 1) || 1.5;
+      if (scene && scene.metricHeight) {
+        // Fit the 3D bounds to the actual viewport; the old ground-only sphere
+        // leaves too much empty space above a skyline on wide screens.
+        let top = 0;
+        for (let i = 0; i < scene.yh.length; i += 2) top = Math.max(top, scene.yh[i] + scene.yh[i + 1]);
+        const next = { tx: x + rw / 2, tz: y + rh / 2, ty: top * 0.3, pitch: 0.64, yaw: -0.12 };
+        const saved = Object.assign({}, cam);
+        Object.assign(cam, next);
+        const [dmin, dmax] = distLimits();
+        let lo = dmin, hi = dmax;
+        const mx = Math.min(40, w * 0.06), my = Math.min(32, h * 0.08);
+        for (let step = 0; step < 24; step++) {
+          cam.dist = (lo + hi) / 2; updateCamera();
+          let fits = true;
+          for (const px of [x, x + rw]) for (const pz of [y, y + rh]) for (const py of [0, top]) {
+            const p = project(px, py, pz);
+            if (!p || p[0] < mx || p[0] > w - mx || p[1] < my || p[1] > h - my) fits = false;
+          }
+          if (fits) hi = cam.dist; else lo = cam.dist;
+        }
+        Object.assign(cam, saved);
+        next.dist = hi;
+        setCam(next, animate !== false);
+        return;
+      }
       const half = Math.min(FOV / 2, Math.atan(Math.tan(FOV / 2) * aspect));
       const radius = 0.5 * Math.hypot(rw, rh);
       const [dmin, dmax] = distLimits();
@@ -472,10 +497,18 @@ void main() { o = v_c; }`;
       if (hooks.onFrame) hooks.onFrame({ ms, avg: samples.reduce((a, b) => a + b, 0) / samples.length });
     }
     function placeLabels() {
+      const occupied = [];
       for (let q = 0; q < labelEls.length; q++) {
         const L = scene.labels[q], node = labelEls[q];
         const p = project(L.x, L.y, L.z);
         if (!p || p[0] < -40 || p[1] < -20 || p[0] > w || p[1] > h) { node.style.visibility = 'hidden'; continue; }
+        if (scene.metricHeight) {
+          const x = p[0], y = p[1] - 18, rw = node.offsetWidth, rh = node.offsetHeight;
+          const blocked = occupied.some((b) => x < b[2] && x + rw > b[0] && y < b[3] && y + rh > b[1])
+            || [[x, y], [x + rw / 2, y + rh / 2], [x + rw, y], [x, y + rh], [x + rw, y + rh]].some(([sx, sy]) => pick(sx, sy) >= 0);
+          if (blocked) { node.style.visibility = 'hidden'; continue; }
+          occupied.push([x, y, x + rw, y + rh]);
+        }
         node.style.visibility = 'visible';
         node.style.transform = 'translate(' + Math.round(p[0]) + 'px,' + Math.round(p[1] - 18) + 'px)';
       }
@@ -498,7 +531,9 @@ void main() { o = v_c; }`;
     const api = {
       setScene(s) {
         // Keep a private copy of exactly what is uploaded, so tests can compare it with the layout.
+        if (scene && scene.metricHeight && !s.metricHeight) Object.assign(cam, { ty: 0, yaw: -0.45, pitch: 0.82 });
         scene = Object.assign({}, s, { rects: new Float32Array(s.rects), yh: new Float32Array(s.yh), colors: new Float32Array(s.colors), ids: s.ids.slice() });
+        if (!scene.metricHeight) cam.ty = 0;
         if (res) upload(scene);
         buildLabels();
         requestRender();
@@ -544,6 +579,13 @@ void main() { o = v_c; }`;
       },
       camera() { return { yaw: cam.yaw, pitch: cam.pitch, dist: cam.dist, target: [cam.tx, cam.tz] }; },
       pick,
+      screenPoint(i) {
+        if (!scene) return null;
+        updateCamera();
+        const o = i * 4;
+        const p = project(scene.rects[o] + scene.rects[o + 2] / 2, scene.yh[i * 2] + scene.yh[i * 2 + 1], scene.rects[o + 1] + scene.rects[o + 3] / 2);
+        return p ? { x: p[0], y: p[1], visible: pick(p[0], p[1]) === i } : null;
+      },
       ids() { return scene ? scene.ids.slice() : []; },
       footprintBuffer() { return scene ? new Float32Array(scene.rects) : null; },
       footprints(limit) {

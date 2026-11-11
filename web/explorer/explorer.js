@@ -22,7 +22,7 @@
     treemap: { view: 'graph', mode: 'treemap' },
     city: { view: 'graph', mode: 'city' }
   };
-  const PAL = 10; // 8 colours, "other", spare
+  const BASE_PAL = 10; // 8 colours, "other", spare
   const PALETTE = {
     light: ['#A8C0EC', '#B2D3BA', '#E6CF9F', '#E5B5BC', '#C5B7E4', '#A6D4CE', '#D2D4A2', '#D8BDA2', '#D2D0CA', '#D2D0CA'],
     dark: ['#47628F', '#4C7658', '#857043', '#87575F', '#665A8B', '#477A74', '#767847', '#7A6149', '#4A4946', '#4A4946']
@@ -122,6 +122,47 @@
 
   // ---------------------------------------------------------------- data model
 
+  function datasetView(raw) {
+    const view = raw && typeof raw === 'object' ? raw : {};
+    const h = view.cityHeight, c = view.color;
+    const cityHeight = h && text(h.metric, 120) && text(h.label, 200) && ['linear', 'log'].includes(h.scale)
+      ? { metric: text(h.metric, 120), label: text(h.label, 200), scale: h.scale, note: text(h.note, 1000) } : null;
+    const values = c && Array.isArray(c.values) ? c.values.filter((v) => v && text(v.value, 120)
+      && /^#[0-9a-f]{6}$/i.test(v.light) && /^#[0-9a-f]{6}$/i.test(v.dark))
+      .slice(0, 32).map((v) => ({ value: text(v.value, 120), label: text(v.label, 120) || text(v.value, 120), light: v.light, dark: v.dark })) : [];
+    const color = c && text(c.field, 120) && text(c.label, 200) && values.length
+      ? { field: text(c.field, 120), label: text(c.label, 200), values } : null;
+    return { cityHeight, color, groupsLast: Array.isArray(view.groupsLast) ? view.groupsLast.map((v) => text(v, 200)) : [] };
+  }
+
+  // Missing, nonnumeric, nonfinite and nonpositive values stay at the base.
+  function positiveMetric(node, metric) {
+    const raw = node.metrics && node.metrics[metric];
+    const value = raw && typeof raw === 'object' ? raw.value : raw;
+    return typeof value === 'number' && Number.isFinite(value) && value > 0 ? value : 0;
+  }
+
+  function nodeHeights(model, flat) {
+    const out = new Float32Array(model.nodes.length).fill(CITY_FLAT_H);
+    if (flat) return out;
+    for (const ds of model.datasets) {
+      const setting = ds.view.cityHeight;
+      const transform = setting && setting.scale === 'log' ? Math.log1p : (v) => v;
+      let max = setting ? 0 : model.maxDegree;
+      if (setting) for (let i = ds.nodeStart; i < ds.nodeEnd; i++) max = Math.max(max, transform(positiveMetric(model.nodes[i], setting.metric)));
+      if (!max) continue;
+      for (let i = ds.nodeStart; i < ds.nodeEnd; i++) {
+        const value = setting ? transform(positiveMetric(model.nodes[i], setting.metric)) : model.degree[i];
+        out[i] = CITY_FLAT_H + value / max * CITY_MAX_H;
+      }
+    }
+    return out;
+  }
+
+  function recordPalette(model, dark) {
+    return PALETTE[dark ? 'dark' : 'light'].concat(model.fieldColors.map((c) => c[dark ? 'dark' : 'light']));
+  }
+
   /** entries: [{ meta: {id,label}, data: datasetJson, baseUrl }] in display order.
    *  Edges resolve only inside their own dataset, so no edge can join two datasets. */
   function buildModel(entries) {
@@ -140,6 +181,7 @@
       const data = entry.data;
       const dsId = text(meta.id) || text(data && data.id) || 'dataset-' + d;
       const info = {
+        view: datasetView(data && data.view),
         id: dsId, index: d, label: text(meta.label, 200) || text(data && data.label, 200) || dsId,
         nodeStart: nodes.length, nodeEnd: nodes.length, edgeCount: 0,
         invalidNodes: 0, duplicateNodes: 0, invalidEdges: 0, unresolvedEdges: 0,
@@ -169,7 +211,7 @@
           description: text(raw.description, 8000), sourceUrl,
           sourceRejected: !!(raw.sourceUrl && !sourceUrl),
           date: text(raw.date, 60), status: text(raw.status, 120), author: text(raw.author, 300),
-          metrics, detailUrl
+          metrics, detailUrl, colorValue: info.view.color ? text(raw[info.view.color.field], 120) : ''
         };
         local.set(id, i);
         nodes.push(node);
@@ -225,9 +267,43 @@
       .sort((a, b) => b.count - a.count || (a.name < b.name ? -1 : a.name > b.name ? 1 : 0));
     const kinds = sortCounts(kindCount);
     const kindIndex = new Map(kinds.map((k, idx) => [k.name, idx]));
+    const fieldColors = [], colorLegend = [];
+    for (const nd of nodes) { const k = kindIndex.get(nd.kind); nd.colorSlot = k < 8 ? k : 8; }
+    for (const ds of datasets) {
+      const setting = ds.view.color;
+      if (!setting) continue;
+      const values = new Map();
+      for (const v of setting.values) {
+        if (values.has(v.value)) continue;
+        const item = { name: v.label, count: 0, slot: BASE_PAL + fieldColors.length, dataset: ds.label, label: setting.label };
+        fieldColors.push(v); values.set(v.value, item); colorLegend.push(item);
+      }
+      let fallback = null;
+      for (let i = ds.nodeStart; i < ds.nodeEnd; i++) {
+        const nd = nodes[i];
+        let item = values.get(nd.colorValue);
+        if (!item) {
+          if (!fallback) {
+            fallback = { name: 'Other / not recorded', count: 0, slot: BASE_PAL + fieldColors.length, dataset: ds.label, label: setting.label };
+            fieldColors.push({ light: '#96999E', dark: '#858990' }); colorLegend.push(fallback);
+          }
+          item = fallback;
+        }
+        nd.colorSlot = item.slot; item.count++;
+      }
+    }
+    // Kind filters still describe actual kinds; only the colour legend changes.
+    if (fieldColors.length) {
+      const counts = new Map();
+      for (const nd of nodes) if (!datasets[nd.d].view.color) counts.set(nd.kind, (counts.get(nd.kind) || 0) + 1);
+      for (const kd of sortCounts(counts)) {
+        const k = kindIndex.get(kd.name);
+        colorLegend.push({ name: kd.name || 'Kind not recorded', count: kd.count, slot: k < 8 ? k : 8, label: 'record kind' });
+      }
+    }
     return {
       datasets, nodes, edges, byUid, degree, adjStart, adj, maxDegree, crossDataset, byEvidence,
-      kinds, kindIndex, edgeTypes: sortCounts(typeCount), evidenceCounts, buildMs: now() - t0
+      kinds, kindIndex, fieldColors, colorLegend, edgeTypes: sortCounts(typeCount), evidenceCounts, buildMs: now() - t0
     };
   }
 
@@ -350,7 +426,7 @@
         if (!s) g.subs.set(nd.subgroup, (s = { label: nd.subgroup, nodes: [], count: 0, first: i }));
         s.nodes.push(i); s.count++;
       }
-      items.push({ ds, label: ds.label, count: ds.nodeEnd - ds.nodeStart, first: ds.index, groups: [...groups.values()].sort(byCount) });
+      items.push({ ds, label: ds.label, count: ds.nodeEnd - ds.nodeStart, first: ds.index, groups: [...groups.values()].sort((a, b) => Number(ds.view.groupsLast.includes(a.label)) - Number(ds.view.groupsLast.includes(b.label)) || byCount(a, b)) });
     }
     items.sort(byCount);
     const multi = items.length > 1;
@@ -690,7 +766,7 @@
     let model = null, modelKey = '', layout = null, search = null, result = null;
     let loadToken = 0;
     let modelProblems = [];
-    let nodeState = new Uint8Array(0), nodeColor = new Uint8Array(0);
+    let nodeState = new Uint8Array(0), nodeColor = new Uint16Array(0);
     let edgeOn = new Uint8Array(0), edgeHot = new Uint8Array(0), hotEdges = [];
     let selIdx = [];
     let theme = {};
@@ -862,7 +938,7 @@
       search = createSearchIndex(model);
       timings.searchIndexMs = search.ms;
       const n = model.nodes.length;
-      nodeState = new Uint8Array(n); nodeColor = new Uint8Array(n);
+      nodeState = new Uint8Array(n); nodeColor = new Uint16Array(n);
       edgeOn = new Uint8Array(model.edges.length); edgeHot = new Uint8Array(model.edges.length);
       for (const k of [...state.hiddenKinds]) if (!model.kindIndex.has(k)) state.hiddenKinds.delete(k);
       const types = new Set(model.edgeTypes.map((t) => t.name));
@@ -882,10 +958,9 @@
     function assignColors() {
       if (!model) return;
       const nodes = model.nodes;
-      for (let i = 0; i < nodes.length; i++) {
-        if (state.colorBy === 'dataset') nodeColor[i] = nodes[i].d % 8;
-        else { const k = model.kindIndex.get(nodes[i].kind); nodeColor[i] = k < 8 ? k : 8; }
-      }
+      palSize = BASE_PAL + model.fieldColors.length;
+      buckets = Array.from({ length: 6 * palSize }, () => []);
+      for (let i = 0; i < nodes.length; i++) nodeColor[i] = state.colorBy === 'dataset' ? nodes[i].d % 8 : nodes[i].colorSlot;
     }
 
     function refreshStyles() {
@@ -926,7 +1001,7 @@
     const cv = $('canvas-2d');
     const ctx = cv.getContext('2d', { alpha: false });
     const v2 = { w: 0, h: 0, dpr: 1, k: 1, tx: 0, ty: 0, fitK: 1, raf: 0, anim: 0, truncated: false, drawnEdges: 0, visible: 0 };
-    const buckets = Array.from({ length: 6 * PAL }, () => []);
+    let palSize = BASE_PAL, buckets = Array.from({ length: 6 * BASE_PAL }, () => []);
     const renderSamples = [];
 
     function requestRender() {
@@ -1008,6 +1083,7 @@
       const R = layout.rects, n = model.nodes.length;
       const x0 = -tx / k, y0 = -ty / k, x1 = (w - tx) / k, y1 = (h - ty) / k;
       const tree = state.mode === 'treemap';
+      const palette = recordPalette(model, theme.dark);
 
       // Frames: datasets, groups and subgroups.
       const labels = [];
@@ -1032,17 +1108,17 @@
       for (let i = 0; i < n; i++) {
         const o = i << 2, x = R[o], y = R[o + 1];
         if (x > x1 || y > y1 || x + R[o + 2] < x0 || y + R[o + 3] < y0) continue;
-        buckets[nodeState[i] * PAL + nodeColor[i]].push(i);
+        buckets[nodeState[i] * palSize + nodeColor[i]].push(i);
         visible++;
       }
       v2.visible = visible;
       if (!tree) drawEdges(R, k, tx, ty, x0, y0, x1, y1, true);
       for (const st of DRAW_ORDER) {
         ctx.globalAlpha = st === S_DIM ? theme.dimAlpha : st === S_HIDDEN ? 0.08 : 1;
-        for (let c = 0; c < PAL; c++) {
-          const list = buckets[st * PAL + c];
+        for (let c = 0; c < palSize; c++) {
+          const list = buckets[st * palSize + c];
           if (!list.length) continue;
-          ctx.fillStyle = st === S_SELECTED ? (tree ? theme.select : theme.accent) : theme.palette[c];
+          ctx.fillStyle = st === S_SELECTED ? (tree ? theme.select : theme.accent) : palette[c];
           ctx.beginPath();
           for (let q = 0; q < list.length; q++) {
             const o = list[q] << 2;
@@ -1076,7 +1152,7 @@
       };
       if (tree) {
         ctx.globalAlpha = 0.6;
-        for (let c = 0; c < PAL; c++) for (const i of buckets[S_NEIGHBOR * PAL + c]) outline(i, theme.ink, 1);
+        for (let c = 0; c < palSize; c++) for (const i of buckets[S_NEIGHBOR * palSize + c]) outline(i, theme.ink, 1);
         ctx.globalAlpha = 1;
       }
       for (const i of selIdx) outline(i, theme.accent, 2);
@@ -1188,8 +1264,8 @@
       const charW = 6.1;
       const drawFor = (st, alpha) => {
         ctx.globalAlpha = alpha;
-        for (let c = 0; c < PAL && budget > 0; c++) {
-          const list = buckets[st * PAL + c];
+        for (let c = 0; c < palSize && budget > 0; c++) {
+          const list = buckets[st * palSize + c];
           for (let q = 0; q < list.length && budget > 0; q++) {
             const i = list[q], o = i << 2;
             const sw = R[o + 2] * k, sh = R[o + 3] * k;
@@ -1271,17 +1347,17 @@
     }
     function cityHeights() {
       const n = model.nodes.length, out = new Float32Array(n * 2);
-      const max = model.maxDegree;
+      const heights = nodeHeights(model, state.height === 'flat');
       for (let i = 0; i < n; i++) {
         const f = layout.frames[layout.nodeFrame[i]];
         out[i * 2] = (f ? f.level + 1 : 1) * 0.6;
-        out[i * 2 + 1] = state.height === 'flat' || !max ? CITY_FLAT_H : CITY_FLAT_H + (model.degree[i] / max) * CITY_MAX_H;
+        out[i * 2 + 1] = heights[i];
       }
       return out;
     }
     function cityColors() {
       const n = model.nodes.length, out = new Float32Array(n * 4);
-      const pal = theme.palette.map(hexToRgb), bg = hexToRgb(theme.bg), sel = hexToRgb(theme.accent), ink = hexToRgb(theme.ink);
+      const pal = recordPalette(model, theme.dark).map(hexToRgb), bg = hexToRgb(theme.bg), sel = hexToRgb(theme.accent), ink = hexToRgb(theme.ink);
       for (let i = 0; i < n; i++) {
         const st = nodeState[i];
         let c = pal[nodeColor[i]];
@@ -1304,7 +1380,7 @@
       fr.forEach((f, q) => { frames[q * 4] = f.x; frames[q * 4 + 1] = f.y; frames[q * 4 + 2] = f.w; frames[q * 4 + 3] = f.h; levels[q] = f.level; });
       const top = fr.filter((f) => f.level <= 1 && f.head > 0).sort((a, b) => b.w * b.h - a.w * a.h).slice(0, 24)
         .map((f) => ({ x: f.x + 2, z: f.y + f.head * 0.5 + 1, y: (f.level + 1) * 0.6, text: f.label }));
-      return { W: layout.W, H: layout.H, rects: layout.rects, ids: model.nodes.map((nd) => nd.uid), yh: cityHeights(), colors: cityColors(), frames, frameLevels: levels, labels: top };
+      return { metricHeight: model.datasets.some((d) => d.view.cityHeight), W: layout.W, H: layout.H, rects: layout.rects, ids: model.nodes.map((nd) => nd.uid), yh: cityHeights(), colors: cityColors(), frames, frameLevels: levels, labels: top };
     }
     function activateCity() {
       if (state.mode !== 'city' || state.view !== 'graph') return;
@@ -1718,6 +1794,11 @@
       const swatches = el('ul', { class: 'legend-swatches' });
       if (state.colorBy === 'dataset') {
         model.datasets.forEach((d, q) => swatches.append(el('li', null, el('i', { class: 'sw', style: 'background:' + theme.palette[q % 8] }), d.label)));
+      } else if (model.fieldColors.length) {
+        const pal = recordPalette(model, theme.dark);
+        for (const item of model.colorLegend) swatches.append(el('li', { data: { count: item.count } },
+          el('i', { class: 'sw', style: 'background:' + pal[item.slot] }),
+          (model.datasets.length > 1 && item.dataset ? item.dataset + ': ' : '') + item.name + ' ', el('span', { class: 'muted', text: fmt(item.count) })));
       } else {
         model.kinds.slice(0, 8).forEach((kd, q) => swatches.append(el('li', null, el('i', { class: 'sw', style: 'background:' + theme.palette[q] }), (kd.name || 'Kind not recorded') + ' ', el('span', { class: 'muted', text: fmt(kd.count) }))));
         if (model.kinds.length > 8) {
@@ -1726,16 +1807,23 @@
         }
       }
       box.append(
-        el('p', { class: 'legend-h', text: state.colorBy === 'dataset' ? 'Colour: dataset' : 'Colour: record kind' }),
+        el('p', { class: 'legend-h', text: state.colorBy === 'dataset' ? 'Colour: dataset' : model.fieldColors.length ? 'Colour: ' + [...new Set(model.colorLegend.map((c) => c.label))].join(' / ') : 'Colour: record kind' }),
         swatches,
         el('p', { text: city3 ? 'Footprint: one equal share per record, the same as the treemap.' : 'Area: one equal share per record. Larger blocks hold more records.' }),
-        el('p', { class: 'legend-lines' },
+        ...(model.edges.length || !model.fieldColors.length ? [el('p', { class: 'legend-lines' },
           el('span', null, el('i', { class: 'ln ln-observed' }), 'Observed'),
           el('span', null, el('i', { class: 'ln ln-inferred' }), 'Inferred comparison'),
-          model.evidenceCounts.unstated ? el('span', null, el('i', { class: 'ln ln-unstated' }), 'Evidence not stated') : null)
+          model.evidenceCounts.unstated ? el('span', null, el('i', { class: 'ln ln-unstated' }), 'Evidence not stated') : null)] : [])
       );
       if (city3) {
-        box.append(el('p', { text: state.height === 'flat' ? 'Height: none. All records are flat.' : model.maxDegree ? 'Height: connections per record in the loaded data, 0 to ' + fmt(model.maxDegree) + ', linear. Height does not measure value.' : 'Height: no record has connections in the loaded data.' }));
+        if (state.height !== 'flat' && model.datasets.some((d) => d.view.cityHeight)) {
+          for (const ds of model.datasets) {
+            const h = ds.view.cityHeight;
+            const meaning = h ? h.label + ', ' + (h.scale === 'log' ? 'log scale' : 'linear scale') + '. ' + h.note
+              : 'Connections per record, linear. Height does not measure value.';
+            box.append(el('p', { text: 'Height' + (model.datasets.length > 1 ? ' (' + ds.label + ')' : '') + ': ' + meaning }));
+          }
+        } else box.append(el('p', { text: state.height === 'flat' ? 'Height: none. All records are flat.' : model.maxDegree ? 'Height: connections per record in the loaded data, 0 to ' + fmt(model.maxDegree) + ', linear. Height does not measure value.' : 'Height: no record has connections in the loaded data.' }));
       }
       if (!city3 && state.mode === 'graph' && v2.truncated) box.append(el('p', { class: 'warn', text: 'Showing the first ' + fmt(EDGE_DRAW_BUDGET) + ' connections in view. Zoom in or select a record to see the rest.' }));
     }
@@ -1756,6 +1844,8 @@
       box(kinds, state.hiddenKinds, model.kinds, (s) => s || 'Kind not recorded');
       box(types, state.hiddenTypes, model.edgeTypes, (s) => s);
       box(evid, state.hiddenEvidence, EV.map((e) => ({ name: e, count: model.evidenceCounts[e] })).filter((x) => x.count || x.name !== 'unstated'), (s) => EV_LABEL[s]);
+      doc.querySelector('input[name="colorBy"][value="kind"]').nextElementSibling.textContent = model.fieldColors.length ? (model.datasets.length === 1 ? model.datasets[0].view.color.label : 'Record fields / kinds') : 'Record kind';
+      doc.querySelector('input[name="height"][value="connections"]').nextElementSibling.textContent = model.datasets.some((d) => d.view.cityHeight) ? (model.datasets.length === 1 ? model.datasets[0].view.cityHeight.label : 'Dataset height measures') : 'Connections per record';
       for (const r of doc.querySelectorAll('input[name="colorBy"]')) r.checked = r.value === state.colorBy;
       for (const r of doc.querySelectorAll('input[name="height"]')) r.checked = r.value === state.height;
     }
@@ -2347,6 +2437,12 @@
         for (let p = model.adjStart[nd.i]; p < model.adjStart[nd.i + 1]; p++) out.push(model.nodes[other(model.edges[model.adj[p]], nd.i)].uid);
         return out;
       },
+      recordStyles() {
+        if (!model) return [];
+        const palette = recordPalette(model, theme.dark);
+        return model.nodes.map((nd) => ({ id: nd.uid, color: palette[nodeColor[nd.i]], degree: model.degree[nd.i] }));
+      },
+      cityScreenPoint(uid) { const nd = model && model.byUid.get(uid); return nd && city ? city.screenPoint(nd.i) : null; },
       cityFootprints(limit) { return city ? city.footprints(limit) : null; },
       compareCityFootprints() {
         if (!city || !layout) return null;
@@ -2397,6 +2493,6 @@
 
   return {
     VERSION, WORLD_W, WORLD_H, boot, safeUrl, text, fold, buildModel, squarify, computeLayout, hitTest,
-    nearestInDirection, createSearchIndex, parseQuery, runSearch, hexToRgb, evidenceFor, evidenceEntry, watchEvidence, metricText, LEGACY_ROUTES, overlapWarnings, preparedLabel
+    nearestInDirection, createSearchIndex, parseQuery, runSearch, hexToRgb, evidenceFor, evidenceEntry, watchEvidence, metricText, LEGACY_ROUTES, overlapWarnings, preparedLabel, datasetView, positiveMetric, nodeHeights, recordPalette
   };
 });

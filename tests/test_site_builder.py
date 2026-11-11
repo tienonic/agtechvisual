@@ -1,6 +1,7 @@
 """Public record preservation and export-boundary checks (stdlib only)."""
 
 import copy
+from collections import Counter
 from contextlib import redirect_stdout
 import hashlib
 import io
@@ -59,6 +60,27 @@ class PublicSiteTests(unittest.TestCase):
         self.assertEqual(zero["value"], 0)
         self.assertIsNone(missing["value"])
         self.assertIn("A zero means no positive amount was saved, not no funding.", zero["note"])
+
+    def test_agtech_view_uses_saved_metrics_and_observations(self):
+        dataset, _ = adapt(self.data)
+        view = dataset["view"]
+        self.assertEqual(view["cityHeight"]["metric"], "Saved funding")
+        self.assertEqual(view["cityHeight"]["scale"], "log")
+        self.assertEqual(view["cityHeight"]["label"], "Saved funding (USD)")
+        self.assertIn("not no funding", view["cityHeight"]["note"])
+        self.assertEqual(view["groupsLast"], ["Unclassified"])
+        self.assertEqual(view["color"]["field"], "status")
+        self.assertEqual(view["color"]["label"], "Website observation")
+        values = view["color"]["values"]
+        self.assertEqual([v["label"] for v in values], ["Live", "Not recorded", "Dead"])
+        self.assertEqual(len({v["light"] for v in values}), 3)
+        self.assertEqual(len({v["dark"] for v in values}), 3)
+        counts = Counter(n[view["color"]["field"]] for n in dataset["nodes"])
+        self.assertEqual(counts, {"Website: Live": 2062, "Website: Not recorded": 617, "Website: Dead": 16})
+        for node, record in zip(dataset["nodes"], self.data["companies"]):
+            self.assertEqual(node["metrics"][view["cityHeight"]["metric"]]["value"], record["funding"])
+        self.assertEqual(sum(n["metrics"]["Saved funding"]["value"] > 0 for n in dataset["nodes"]), 473)
+        self.assertEqual(dataset["edges"], [])
 
     def test_missing_database_does_not_replace_the_public_snapshot(self):
         from src.cli import cmd_dashboard

@@ -3,9 +3,9 @@
   "origin": "Shared research explorer",
   "files": {
     "index.template.html": "c71c4014506c0f01e9bc41319c324d88189e7545a7c0c6b2eb8e760ec720ab39",
-    "explorer.js": "8aceb006dfab23a7499e721a86c940a0be0ec0c0cdcaf61c2283e4db12a22f77",
+    "explorer.js": "44cd0863026779cc9a4b99ef009c31359e7a0f6f1221ddadcce4b0742bc4b593",
     "explorer.css": "2dc9c0d05f028dfe246028ee0a53df8b1bcbb79301ba2a042238f6b13a58f6a1",
-    "city.js": "2f2ebb5da2f497ff246f8036488dd9d9cadd1d30a865f77c93f5f3524f4ade2d",
+    "city.js": "4e44c29e8b3f7ab18609bdbb4787d583b484d8bf08f62a2beb688b3df62baa9f",
     "vendor/OFL.txt": "5f94c3fd3a23131a417ab5a0c8452de57e70c3cfb9f604d88241f7065ebf9fd9",
     "vendor/source-serif-4-latin.woff2": "382475f38242c52d42a3e5ff8dc69b5d73f10d0d21e4550b5fe232984688779a"
   }
